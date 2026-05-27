@@ -114,6 +114,56 @@ public class WishSearchService {
         }
     }
 
+    public long countWishes(String keyword, Integer category, Integer status,
+                            Double latitude, Double longitude, Double radiusKm) {
+        try {
+            List<Query> mustQueries = new ArrayList<>();
+            List<Query> filterQueries = new ArrayList<>();
+
+            if (keyword != null && !keyword.isEmpty()) {
+                mustQueries.add(Query.of(q -> q
+                        .multiMatch(m -> m
+                                .query(keyword)
+                                .fields("title^2", "content")
+                        )
+                ));
+            }
+
+            if (category != null) {
+                filterQueries.add(Query.of(q -> q.term(t -> t.field("category").value(category))));
+            }
+
+            if (status != null) {
+                filterQueries.add(Query.of(q -> q.term(t -> t.field("status").value(status))));
+            }
+
+            BoolQuery.Builder boolQuery = new BoolQuery.Builder();
+            if (!mustQueries.isEmpty()) {
+                boolQuery.must(mustQueries);
+            }
+            if (!filterQueries.isEmpty()) {
+                boolQuery.filter(filterQueries);
+            }
+
+            if (boolQuery.build().must().isEmpty() && boolQuery.build().filter().isEmpty()) {
+                boolQuery.must(Query.of(q -> q.matchAll(m -> m)));
+            }
+
+            SearchRequest searchRequest = SearchRequest.of(s -> s
+                    .index(INDEX_WISH)
+                    .query(Query.of(q -> q.bool(boolQuery.build())))
+                    .size(0)
+            );
+
+            SearchResponse<Wish> response = esClient.search(searchRequest, Wish.class);
+            return response.hits().total().value();
+
+        } catch (IOException e) {
+            log.error("Failed to count wishes", e);
+            return 0;
+        }
+    }
+
     public void deleteWishIndex(Long wishId) {
         try {
             esClient.delete(d -> d

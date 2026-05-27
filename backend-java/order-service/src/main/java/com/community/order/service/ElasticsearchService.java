@@ -90,6 +90,38 @@ public class ElasticsearchService {
         }
     }
 
+    public long countOrders(Long userId, String keyword, String status) {
+        try {
+            List<Query> filterQueries = new ArrayList<>();
+
+            if (userId != null) {
+                filterQueries.add(Query.of(q -> q.term(t -> t.field("userId").value(userId))));
+            }
+
+            if (status != null && !status.isEmpty()) {
+                filterQueries.add(Query.of(q -> q.term(t -> t.field("status").value(status))));
+            }
+
+            BoolQuery.Builder boolQuery = new BoolQuery.Builder();
+            if (!filterQueries.isEmpty()) {
+                boolQuery.filter(filterQueries);
+            }
+
+            SearchRequest searchRequest = SearchRequest.of(s -> s
+                    .index(INDEX_ORDER)
+                    .query(Query.of(q -> q.bool(boolQuery.build())))
+                    .size(0)
+            );
+
+            SearchResponse<Order> response = esClient.search(searchRequest, Order.class);
+            return response.hits().total().value();
+
+        } catch (IOException e) {
+            log.error("Failed to count orders", e);
+            return 0;
+        }
+    }
+
     public void deleteOrderIndex(Long orderId) {
         try {
             esClient.delete(d -> d

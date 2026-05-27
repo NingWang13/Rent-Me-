@@ -64,7 +64,6 @@ public class AuthController {
             }
 
             String openid = (String) body.get("openid");
-            String sessionKey = (String) body.get("session_key");
             log.info("微信登录成功: openid={}", openid);
 
             // 2. 根据openid查找用户

@@ -68,6 +68,10 @@ public class ActivityController {
 
     @GetMapping("/{id}/signups")
     public ApiResponse<List<ActivitySignup>> getSignups(@PathVariable Long id, @RequestHeader("X-User-Id") Long userId) {
+        Activity activity = activityService.getActivityById(id);
+        if (!activity.getOrganizerId().equals(userId)) {
+            return ApiResponse.error(403, "只有活动创建者可以查看报名列表");
+        }
         List<ActivitySignup> signups = activityService.getSignups(id);
         return ApiResponse.success(signups);
     }

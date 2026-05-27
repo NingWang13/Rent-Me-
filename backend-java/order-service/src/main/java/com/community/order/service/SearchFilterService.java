@@ -57,7 +57,7 @@ public class SearchFilterService {
                 userId, keyword, status, from, size
         );
 
-        long total = orders.size();
+        long total = elasticsearchService.countOrders(userId, keyword, status);
         int totalPages = (int) Math.ceil((double) total / size);
 
         return Map.of(
@@ -80,7 +80,7 @@ public class SearchFilterService {
                 keyword, category, status, latitude, longitude, radiusKm, from, size
         );
 
-        long total = wishes.size();
+        long total = wishSearchService.countWishes(keyword, category, status, latitude, longitude, radiusKm);
         int totalPages = (int) Math.ceil((double) total / size);
 
         return Map.of(

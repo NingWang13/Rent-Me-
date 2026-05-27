@@ -29,15 +29,44 @@ public class MessageController {
      * 创建消息
      */
     @PostMapping("/create")
-    public ApiResponse<Message> createMessage(@Valid @RequestBody Message message) {
-        log.info("创建消息: userId={}, type={}", message.getUserId(), message.getType());
+    public ApiResponse<Message> createMessage(
+            @RequestHeader("X-User-Id") Long userId,
+            @Valid @RequestBody MessageCreateRequest request) {
+        log.info("创建消息: userId={}, type={}", userId, request.getType());
         try {
+            Message message = new Message();
+            message.setUserId(userId);
+            message.setType(request.getType());
+            message.setTitle(request.getTitle());
+            message.setContent(request.getContent());
+            message.setRelatedType(request.getRelatedType());
+            message.setRelatedId(request.getRelatedId());
+
             Message created = messageService.createMessage(message);
             return ApiResponse.success(created);
         } catch (Exception e) {
             log.error("创建消息失败", e);
             return ApiResponse.error(500, "创建消息失败: " + e.getMessage());
         }
+    }
+
+    public static class MessageCreateRequest {
+        private Integer type;
+        private String title;
+        private String content;
+        private String relatedType;
+        private String relatedId;
+
+        public Integer getType() { return type; }
+        public void setType(Integer type) { this.type = type; }
+        public String getTitle() { return title; }
+        public void setTitle(String title) { this.title = title; }
+        public String getContent() { return content; }
+        public void setContent(String content) { this.content = content; }
+        public String getRelatedType() { return relatedType; }
+        public void setRelatedType(String relatedType) { this.relatedType = relatedType; }
+        public String getRelatedId() { return relatedId; }
+        public void setRelatedId(String relatedId) { this.relatedId = relatedId; }
     }
 
     /**

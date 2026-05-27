@@ -26,6 +26,12 @@ public class UserController {
 
     @PostMapping("/register")
     public ApiResponse<User> register(@RequestBody User user) {
+        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
+            throw new BusinessException(400, "用户名不能为空");
+        }
+        if (user.getPassword() == null || user.getPassword().length() < 6) {
+            throw new BusinessException(400, "密码长度不能少于6位");
+        }
         User existing = userService.getUserByUsername(user.getUsername());
         if (existing != null) {
             throw new BusinessException(ErrorCode.CONFLICT);
@@ -71,6 +77,15 @@ public class UserController {
 
     @PutMapping("/password")
     public ApiResponse<Void> updatePassword(@RequestHeader("X-User-Id") Long userId, @RequestBody PasswordUpdateRequest request) {
+        if (request.getOldPassword() == null || request.getNewPassword() == null) {
+            throw new BusinessException(400, "密码不能为空");
+        }
+        if (request.getOldPassword().equals(request.getNewPassword())) {
+            throw new BusinessException(400, "新密码不能与旧密码相同");
+        }
+        if (request.getNewPassword().length() < 6) {
+            throw new BusinessException(400, "新密码长度不能少于6位");
+        }
         User user = userService.getUserById(userId);
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             throw new BusinessException(ErrorCode.USERNAME_OR_PASSWORD_ERROR);

@@ -57,6 +57,8 @@ public class WechatPayService {
     private JsapiService jsapiService;
     private RefundService refundService;
 
+    private PrivateKey privateKey;
+
     public WechatPayService(PaymentService paymentService) {
         this.paymentService = paymentService;
         initWechatPayService();
@@ -67,17 +69,7 @@ public class WechatPayService {
      */
     private void initWechatPayService() {
         try {
-            // 读取私钥
-            String privateKeyContent = new String(Files.readAllBytes(Paths.get(keyPath)));
-            privateKeyContent = privateKeyContent
-                    .replace("-----BEGIN PRIVATE KEY-----", "")
-                    .replace("-----END PRIVATE KEY-----", "")
-                    .replaceAll("\\s+", "");
-
-            byte[] privateKeyBytes = Base64.getDecoder().decode(privateKeyContent);
-            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
+            this.privateKey = loadPrivateKey();
 
             // 创建配置
             Config config = new RSAConfig.Builder()
@@ -96,6 +88,22 @@ public class WechatPayService {
             log.error("微信支付SDK初始化失败", e);
             throw new RuntimeException("微信支付SDK初始化失败: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * 加载私钥
+     */
+    private PrivateKey loadPrivateKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        String privateKeyContent = new String(Files.readAllBytes(Paths.get(keyPath)));
+        privateKeyContent = privateKeyContent
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
+                .replaceAll("\\s+", "");
+
+        byte[] privateKeyBytes = Base64.getDecoder().decode(privateKeyContent);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePrivate(keySpec);
     }
 
     /**
@@ -306,23 +314,10 @@ public class WechatPayService {
      */
     private String generateSignature(String message) {
         try {
-            // 使用私钥对消息进行签名
             java.security.Signature signer = java.security.Signature.getInstance("SHA256withRSA");
-            String privateKeyContent = new String(Files.readAllBytes(Paths.get(keyPath)));
-            privateKeyContent = privateKeyContent
-                    .replace("-----BEGIN PRIVATE KEY-----", "")
-                    .replace("-----END PRIVATE KEY-----", "")
-                    .replaceAll("\\s+", "");
-
-            byte[] privateKeyBytes = Base64.getDecoder().decode(privateKeyContent);
-            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
-
             signer.initSign(privateKey);
             signer.update(message.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             byte[] signatureBytes = signer.sign();
-
             return Base64.getEncoder().encodeToString(signatureBytes);
         } catch (Exception e) {
             log.error("生成签名失败", e);

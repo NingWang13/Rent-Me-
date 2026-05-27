@@ -33,6 +33,14 @@ public class FeedbackService extends ServiceImpl<FeedbackMapper, Feedback> {
             throw new BusinessException(400, "反馈内容至少10个字");
         }
 
+        if (type == null || (type != TYPE_SUGGESTION && type != TYPE_COMPLAINT && type != TYPE_BUG && type != TYPE_OTHER)) {
+            throw new BusinessException(400, "反馈类型无效");
+        }
+
+        if (rating != null && (rating < 1 || rating > 5)) {
+            throw new BusinessException(400, "评分必须在1-5之间");
+        }
+
         Feedback feedback = Feedback.builder()
                 .userId(userId)
                 .type(type)

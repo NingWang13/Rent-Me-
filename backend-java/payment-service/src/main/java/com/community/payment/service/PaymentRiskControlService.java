@@ -20,8 +20,12 @@ public class PaymentRiskControlService extends ServiceImpl<PaymentRiskControlMap
         PaymentRiskControl riskControl = getOrCreateRiskControl(userId);
 
         if (riskControl.getPaymentPasswordFailCount() >= MAX_PAYMENT_PASSWORD_FAILURES) {
-            LocalDateTime lockEndTime = riskControl.getPaymentPasswordLockTime()
-                    .plusMinutes(PASSWORD_LOCK_DURATION_MINUTES);
+            LocalDateTime lockTime = riskControl.getPaymentPasswordLockTime();
+            if (lockTime == null) {
+                resetPaymentPasswordFailCount(userId);
+                return;
+            }
+            LocalDateTime lockEndTime = lockTime.plusMinutes(PASSWORD_LOCK_DURATION_MINUTES);
             if (LocalDateTime.now().isBefore(lockEndTime)) {
                 throw new BusinessException(400, "支付密码已锁定，请30分钟后重试");
             } else {
