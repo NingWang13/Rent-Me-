@@ -1,104 +1,62 @@
 package com.community.user.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.community.common.exception.BusinessException;
-import com.community.common.exception.ErrorCode;
 import com.community.common.response.PageResponse;
 import com.community.user.entity.User;
-import com.community.user.mapper.UserMapper;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
-public class UserService {
+/**
+ * 用户服务接口
+ */
+public interface UserService {
 
-    private final UserMapper userMapper;
+    /**
+     * 根据ID获取用户
+     */
+    User getUserById(Long id);
 
-    public UserService(UserMapper userMapper) {
-        this.userMapper = userMapper;
-    }
+    /**
+     * 根据用户名获取用户
+     */
+    User getUserByUsername(String username);
 
-    public User getUserById(Long id) {
-        User user = userMapper.selectById(id);
-        if (user == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND);
-        }
-        return user;
-    }
+    /**
+     * 根据手机号获取用户
+     */
+    User getUserByPhone(String phone);
 
-    public User getUserByUsername(String username) {
-        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getUsername, username);
-        return userMapper.selectOne(wrapper);
-    }
+    /**
+     * 根据openid获取用户
+     */
+    User getUserByOpenid(String openid);
 
-    public User getUserByPhone(String phone) {
-        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getPhone, phone);
-        return userMapper.selectOne(wrapper);
-    }
+    /**
+     * 分页查询用户列表
+     */
+    PageResponse<User> getUserList(int page, int size, String keyword);
 
-    public User getUserByOpenid(String openid) {
-        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getOpenid, openid);
-        return userMapper.selectOne(wrapper);
-    }
+    /**
+     * 创建用户
+     */
+    User createUser(User user);
 
-    public PageResponse<User> getUserList(int page, int size, String keyword) {
-        Page<User> pageParam = new Page<>(page, size);
-        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        if (keyword != null && !keyword.isEmpty()) {
-            wrapper.like(User::getNickname, keyword)
-                    .or()
-                    .like(User::getUsername, keyword)
-                    .or()
-                    .like(User::getPhone, keyword);
-        }
-        wrapper.orderByDesc(User::getCreateTime);
-        Page<User> result = userMapper.selectPage(pageParam, wrapper);
-        return PageResponse.of(result.getRecords(), result.getTotal(), page, size);
-    }
+    /**
+     * 更新用户
+     */
+    User updateUser(Long id, User user);
 
-    @Transactional(rollbackFor = Exception.class)
-    public User createUser(User user) {
-        User existing = getUserByUsername(user.getUsername());
-        if (existing != null) {
-            throw new BusinessException(ErrorCode.CONFLICT);
-        }
-        userMapper.insert(user);
-        return user;
-    }
+    /**
+     * 删除用户
+     */
+    void deleteUser(Long id);
 
-    @Transactional(rollbackFor = Exception.class)
-    public User updateUser(Long id, User user) {
-        getUserById(id);
-        user.setId(id);
-        userMapper.updateById(user);
-        return getUserById(id);
-    }
+    /**
+     * 更新用户状态
+     */
+    void updateUserStatus(Long id, Integer status);
 
-    @Transactional(rollbackFor = Exception.class)
-    public void deleteUser(Long id) {
-        getUserById(id);
-        userMapper.deleteById(id);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void updateUserStatus(Long id, Integer status) {
-        User user = getUserById(id);
-        user.setStatus(status);
-        userMapper.updateById(user);
-    }
-
-    public List<User> searchUsers(String keyword, int limit) {
-        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.like(User::getNickname, keyword)
-                .or()
-                .like(User::getUsername, keyword)
-                .last("LIMIT " + Math.min(limit, 100));
-        return userMapper.selectList(wrapper);
-    }
+    /**
+     * 搜索用户
+     */
+    List<User> searchUsers(String keyword, int limit);
 }

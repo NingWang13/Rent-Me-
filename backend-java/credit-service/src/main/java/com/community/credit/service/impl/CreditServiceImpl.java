@@ -1,74 +1,111 @@
 package com.community.credit.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.community.common.exception.BusinessException;
+import com.community.common.exception.ErrorCode;
+import com.community.common.response.PageResponse;
 import com.community.credit.entity.CreditLog;
 import com.community.credit.mapper.CreditLogMapper;
 import com.community.credit.service.CreditService;
-import com.community.user.entity.User;
-import com.community.user.mapper.UserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 public class CreditServiceImpl extends ServiceImpl<CreditLogMapper, CreditLog> implements CreditService {
 
-    @Autowired
-    private UserMapper userMapper;
-
     @Override
-    @Transactional
-    public void addCredit(Long userId, int amount, String type, String source, String sourceId, String description) {
-        // 获取用户当前积分
-        User user = userMapper.selectById(userId);
-        if (user == null) {
-            throw new RuntimeException("用户不存在");
-        }
-        
-        int newBalance = user.getCreditScore() + amount;
-        if (newBalance < 0) {
-            throw new RuntimeException("积分不足");
-        }
-        
-        // 更新用户积分
-        user.setCreditScore(newBalance);
-        userMapper.updateById(user);
-        
-        // 记录积分变动
-        CreditLog log = new CreditLog();
-        log.setUserId(userId);
-        log.setChangeAmount(amount);
-        log.setBalance(newBalance);
-        log.setType(type);
-        log.setSource(source);
-        log.setSourceId(sourceId);
-        log.setDescription(description);
-        
-        this.save(log);
-    }
-
-    @Override
-    public List<CreditLog> getCreditLogs(int page, int size, Long userId) {
+    public int getCreditBalance(Long userId) {
         LambdaQueryWrapper<CreditLog> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(CreditLog::getUserId, userId);
         wrapper.orderByDesc(CreditLog::getCreateTime);
-        wrapper.last("limit " + (page - 1) * size + ", " + size);
-        return this.list(wrapper);
+        wrapper.last("LIMIT 1");
+        CreditLog lastLog = this.getOne(wrapper);
+        return lastLog != null ? lastLog.getBalanceAfter() : 0;
     }
 
     @Override
-    public long countCreditLogs(Long userId) {
+    public PageResponse<CreditLog> getCreditLogs(int page, int size, Long userId) {
+        Page<CreditLog> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<CreditLog> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(CreditLog::getUserId, userId);
-        return this.count(wrapper);
+        wrapper.orderByDesc(CreditLog::getCreateTime);
+        Page<CreditLog> result = this.page(pageParam, wrapper);
+        return PageResponse.of(result.getRecords(), result.getTotal(), page, size);
     }
 
     @Override
-    public int getUserBalance(Long userId) {
-        User user = userMapper.selectById(userId);
-        return user != null ? user.getCreditScore() : 0;
+    @Transactional(rollbackFor = Exception.class)
+    public synchronized CreditLog checkin(Long userId) {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
+
+        LambdaQueryWrapper<CreditLog> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(CreditLog::getUserId, userId);
+        wrapper.eq(CreditLog::getType, 1);
+        wrapper.ge(CreditLog::getCreateTime, startOfDay);
+        wrapper.lt(CreditLog::getCreateTime, endOfDay);
+        long count = this.count(wrapper);
+
+        if (count > 0) {
+            throw new BusinessException(ErrorCode.CHECKIN_DUPLICATE);
+        }
+
+        int currentBalance = getCreditBalance(userId);
+        int checkinAmount = 10;
+        int newBalance = currentBalance + checkinAmount;
+
+        CreditLog log = new CreditLog();
+        log.setUserId(userId);
+        log.setChangeAmount(checkinAmount);
+        log.setBalanceAfter(newBalance);
+        log.setType(1);
+        log.setDescription("每日签到");
+        this.save(log);
+        return log;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CreditLog addCredit(Long userId, int amount, int type, Long relatedId, String relatedType, String description) {
+        int currentBalance = getCreditBalance(userId);
+        int newBalance = currentBalance + amount;
+
+        CreditLog log = new CreditLog();
+        log.setUserId(userId);
+        log.setChangeAmount(amount);
+        log.setBalanceAfter(newBalance);
+        log.setType(type);
+        log.setRelatedId(relatedId);
+        log.setRelatedType(relatedType);
+        log.setDescription(description);
+        this.save(log);
+        return log;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CreditLog deductCredit(Long userId, int amount, int type, Long relatedId, String relatedType, String description) {
+        int currentBalance = getCreditBalance(userId);
+        if (currentBalance < amount) {
+            throw new BusinessException(ErrorCode.CREDIT_NOT_ENOUGH);
+        }
+        int newBalance = currentBalance - amount;
+
+        CreditLog log = new CreditLog();
+        log.setUserId(userId);
+        log.setChangeAmount(-amount);
+        log.setBalanceAfter(newBalance);
+        log.setType(type);
+        log.setRelatedId(relatedId);
+        log.setRelatedType(relatedType);
+        log.setDescription(description);
+        this.save(log);
+        return log;
     }
 }
