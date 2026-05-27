@@ -67,14 +67,20 @@ public class UserControllerV2 {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<User> getUserInfo(@PathVariable Long id) {
+    public ApiResponse<User> getUserInfo(@RequestHeader("X-User-Id") Long currentUserId, @PathVariable Long id) {
+        if (!currentUserId.equals(id)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+        }
         User user = userService.getUserById(id);
         user.setPassword(null);
         return ApiResponse.success(user);
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<User> updateUser(@PathVariable Long id, @RequestBody UpdateRequest request) {
+    public ApiResponse<User> updateUser(@RequestHeader("X-User-Id") Long currentUserId, @PathVariable Long id, @RequestBody UpdateRequest request) {
+        if (!currentUserId.equals(id)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+        }
         User existing = userService.getUserById(id);
         if (request.getNickname() != null) existing.setNickname(request.getNickname());
         if (request.getAvatarUrl() != null) existing.setAvatarUrl(request.getAvatarUrl());

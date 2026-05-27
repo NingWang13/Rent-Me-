@@ -4,12 +4,18 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.community.common.exception.BusinessException;
 import com.community.payment.entity.PaymentRiskControl;
 import com.community.payment.mapper.PaymentRiskControlMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class PaymentRiskControlService extends ServiceImpl<PaymentRiskControlMapper, PaymentRiskControl> {
+
+    private static final Logger log = LoggerFactory.getLogger(PaymentRiskControlService.class);
 
     private static final int MAX_PAYMENT_PASSWORD_FAILURES = 5;
     private static final int PASSWORD_LOCK_DURATION_MINUTES = 30;
@@ -85,6 +91,21 @@ public class PaymentRiskControlService extends ServiceImpl<PaymentRiskControlMap
         PaymentRiskControl riskControl = getOrCreateRiskControl(userId);
         riskControl.setDailyPaymentAmount(0);
         updateById(riskControl);
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void resetAllDailyPaymentAmounts() {
+        log.info("Start resetting daily payment amounts for all users");
+        try {
+            List<PaymentRiskControl> allRecords = list();
+            for (PaymentRiskControl record : allRecords) {
+                record.setDailyPaymentAmount(0);
+            }
+            updateBatchById(allRecords);
+            log.info("Daily payment amounts reset completed");
+        } catch (Exception e) {
+            log.error("Failed to reset daily payment amounts", e);
+        }
     }
 
     public boolean isNewUser(Long userId) {

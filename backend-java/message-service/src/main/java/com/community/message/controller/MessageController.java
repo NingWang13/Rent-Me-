@@ -72,9 +72,9 @@ public class MessageController {
     /**
      * 根据用户ID查询消息列表
      */
-    @GetMapping("/user/{userId}")
+    @GetMapping("/list")
     public ApiResponse<List<Message>> getMessagesByUserId(
-            @PathVariable Long userId,
+            @RequestHeader("X-User-Id") Long userId,
             @RequestParam(required = false) Integer type) {
         log.info("查询用户消息: userId={}, type={}", userId, type);
         try {
@@ -90,10 +90,15 @@ public class MessageController {
      * 标记消息为已读
      */
     @PostMapping("/read/{messageId}")
-    public ApiResponse<Void> markAsRead(@PathVariable Long messageId) {
-        log.info("标记消息已读: messageId={}", messageId);
+    public ApiResponse<Void> markAsRead(
+            @RequestHeader("X-User-Id") Long userId,
+            @PathVariable Long messageId) {
+        log.info("标记消息已读: messageId={}, userId={}", messageId, userId);
         try {
-            messageService.markAsRead(messageId);
+            Message message = messageService.markAsRead(messageId, userId);
+            if (message == null) {
+                return ApiResponse.error(404, "消息不存在或无权操作");
+            }
             return ApiResponse.success();
         } catch (Exception e) {
             log.error("标记消息已读失败", e);
@@ -104,8 +109,8 @@ public class MessageController {
     /**
      * 全部标记为已读
      */
-    @PostMapping("/read-all/{userId}")
-    public ApiResponse<Void> markAllAsRead(@PathVariable Long userId) {
+    @PostMapping("/read-all")
+    public ApiResponse<Void> markAllAsRead(@RequestHeader("X-User-Id") Long userId) {
         log.info("全部标记已读: userId={}", userId);
         try {
             messageService.markAllAsRead(userId);
@@ -120,10 +125,12 @@ public class MessageController {
      * 删除消息
      */
     @DeleteMapping("/{messageId}")
-    public ApiResponse<Void> deleteMessage(@PathVariable Long messageId) {
-        log.info("删除消息: messageId={}", messageId);
+    public ApiResponse<Void> deleteMessage(
+            @RequestHeader("X-User-Id") Long userId,
+            @PathVariable Long messageId) {
+        log.info("删除消息: messageId={}, userId={}", messageId, userId);
         try {
-            messageService.deleteMessage(messageId);
+            messageService.deleteMessage(messageId, userId);
             return ApiResponse.success();
         } catch (Exception e) {
             log.error("删除消息失败", e);
@@ -134,8 +141,8 @@ public class MessageController {
     /**
      * 清空消息
      */
-    @DeleteMapping("/clear/{userId}")
-    public ApiResponse<Void> clearMessages(@PathVariable Long userId) {
+    @DeleteMapping("/clear")
+    public ApiResponse<Void> clearMessages(@RequestHeader("X-User-Id") Long userId) {
         log.info("清空消息: userId={}", userId);
         try {
             messageService.clearMessages(userId);

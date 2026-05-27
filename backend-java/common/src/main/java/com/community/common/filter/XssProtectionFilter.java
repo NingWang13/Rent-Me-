@@ -1,15 +1,21 @@
 package com.community.common.filter;
 
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.HtmlUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 @Component
@@ -33,8 +39,14 @@ public class XssProtectionFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        XssHttpServletRequestWrapper wrappedRequest = new XssHttpServletRequestWrapper(request);
-        filterChain.doFilter(wrappedRequest, response);
+        String contentType = request.getContentType();
+        if (contentType != null && contentType.contains("application/json")) {
+            XssRequestBodyWrapper wrappedRequest = new XssRequestBodyWrapper(request);
+            filterChain.doFilter(wrappedRequest, response);
+        } else {
+            XssHttpServletRequestWrapper wrappedRequest = new XssHttpServletRequestWrapper(request);
+            filterChain.doFilter(wrappedRequest, response);
+        }
     }
 
     private String cleanXss(String value) {
@@ -48,6 +60,42 @@ public class XssProtectionFilter extends OncePerRequestFilter {
         }
 
         return HtmlUtils.htmlEscape(cleaned != null ? cleaned : "");
+    }
+
+    private class XssRequestBodyWrapper extends jakarta.servlet.http.HttpServletRequestWrapper {
+        private final byte[] cleanedBody;
+
+        XssRequestBodyWrapper(HttpServletRequest request) throws IOException {
+            super(request);
+            String body = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
+            this.cleanedBody = cleanXss(body).getBytes(StandardCharsets.UTF_8);
+        }
+
+        @Override
+        public ServletInputStream getInputStream() {
+            return new ServletInputStream() {
+                private final InputStream inputStream = new ByteArrayInputStream(cleanedBody);
+
+                @Override
+                public boolean isFinished() {
+                    return inputStream.available() == 0;
+                }
+
+                @Override
+                public boolean isReady() {
+                    return true;
+                }
+
+                @Override
+                public void setReadListener(ReadListener readListener) {
+                }
+
+                @Override
+                public int read() {
+                    return inputStream.read();
+                }
+            };
+        }
     }
 
     private class XssHttpServletRequestWrapper extends jakarta.servlet.http.HttpServletRequestWrapper {

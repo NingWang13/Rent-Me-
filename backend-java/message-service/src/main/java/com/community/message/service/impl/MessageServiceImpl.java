@@ -1,6 +1,7 @@
 package com.community.message.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.community.message.entity.Message;
 import com.community.message.mapper.MessageMapper;
@@ -34,24 +35,26 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
     @Override
     public List<Message> getMessageList(int page, int size, Long userId, Integer type) {
+        Page<Message> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Message> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Message::getUserId, userId);
         if (type != null) {
             wrapper.eq(Message::getType, type);
         }
         wrapper.orderByDesc(Message::getCreateTime);
-        wrapper.last("limit " + (page - 1) * size + ", " + size);
-        return this.list(wrapper);
+        Page<Message> result = this.page(pageParam, wrapper);
+        return result.getRecords();
     }
 
     @Override
     public List<Message> getUnreadMessages(int page, int size, Long userId) {
+        Page<Message> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Message> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Message::getUserId, userId);
         wrapper.eq(Message::getIsRead, 0);
         wrapper.orderByDesc(Message::getCreateTime);
-        wrapper.last("limit " + (page - 1) * size + ", " + size);
-        return this.list(wrapper);
+        Page<Message> result = this.page(pageParam, wrapper);
+        return result.getRecords();
     }
 
     @Override
@@ -122,5 +125,12 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         message.setCreateTime(LocalDateTime.now());
         message.setIsRead(0);
         this.save(message);
+    }
+
+    @Override
+    public void clearMessages(Long userId) {
+        LambdaQueryWrapper<Message> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Message::getUserId, userId);
+        this.remove(wrapper);
     }
 }

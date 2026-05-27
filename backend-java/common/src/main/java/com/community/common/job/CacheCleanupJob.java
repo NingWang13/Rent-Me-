@@ -24,8 +24,26 @@ public class CacheCleanupJob {
     public void cleanExpiredCache() {
         log.info("Start cleaning expired cache");
         try {
+            String[] patterns = {
+                "user:info:*",
+                "order:detail:*",
+                "activity:list:*",
+                "message:unread:*",
+                "credit:balance:*",
+                "search:result:*"
+            };
+
+            int totalDeleted = 0;
+            for (String pattern : patterns) {
+                Set<String> keys = redisTemplate.keys(pattern);
+                if (keys != null && !keys.isEmpty()) {
+                    Long deleted = redisTemplate.delete(keys);
+                    totalDeleted += deleted != null ? deleted : 0;
+                }
+            }
+
             String dateStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            log.info("Cache cleanup completed at {}", dateStr);
+            log.info("Cache cleanup completed at {}, deleted {} keys", dateStr, totalDeleted);
         } catch (Exception e) {
             log.error("Failed to clean expired cache", e);
         }

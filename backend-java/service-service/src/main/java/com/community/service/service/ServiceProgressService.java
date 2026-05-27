@@ -45,7 +45,7 @@ public class ServiceProgressService extends ServiceImpl<ServiceProgressMapper, S
         }
 
         boolean isHelper = progressList.stream()
-                .anyMatch(p -> p.getHelperId().equals(currentUserId));
+                .anyMatch(p -> p.getHelperId() != null && p.getHelperId().equals(currentUserId));
 
         if (!isHelper) {
             throw new BusinessException(403, "无权访问该订单进度");

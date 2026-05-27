@@ -118,6 +118,9 @@ public class CreditLog extends BaseEntity {
         private String source;
         private String sourceId;
         private String description;
+        private Integer balanceAfter;
+        private Long relatedId;
+        private String relatedType;
 
         public Builder userId(Long userId) { this.userId = userId; return this; }
         public Builder changeAmount(Integer changeAmount) { this.changeAmount = changeAmount; return this; }
@@ -126,6 +129,9 @@ public class CreditLog extends BaseEntity {
         public Builder source(String source) { this.source = source; return this; }
         public Builder sourceId(String sourceId) { this.sourceId = sourceId; return this; }
         public Builder description(String description) { this.description = description; return this; }
+        public Builder balanceAfter(Integer balanceAfter) { this.balanceAfter = balanceAfter; return this; }
+        public Builder relatedId(Long relatedId) { this.relatedId = relatedId; return this; }
+        public Builder relatedType(String relatedType) { this.relatedType = relatedType; return this; }
 
         public CreditLog build() {
             CreditLog log = new CreditLog();
@@ -136,6 +142,9 @@ public class CreditLog extends BaseEntity {
             log.source = this.source;
             log.sourceId = this.sourceId;
             log.description = this.description;
+            log.balanceAfter = this.balanceAfter;
+            log.relatedId = this.relatedId;
+            log.relatedType = this.relatedType;
             return log;
         }
     }

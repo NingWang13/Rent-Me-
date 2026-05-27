@@ -29,9 +29,21 @@ public class OrderController {
      * 创建订单
      */
     @PostMapping("/create")
-    public ApiResponse<Order> createOrder(@Valid @RequestBody Order order) {
-        log.info("创建订单: userId={}, title={}", order.getUserId(), order.getTitle());
+    public ApiResponse<Order> createOrder(
+            @RequestHeader("X-User-Id") Long userId,
+            @Valid @RequestBody OrderCreateRequest request) {
+        log.info("创建订单: userId={}, title={}", userId, request.getTitle());
         try {
+            Order order = new Order();
+            order.setUserId(userId);
+            order.setTitle(request.getTitle());
+            order.setDescription(request.getDescription());
+            order.setAmount(request.getAmount());
+            order.setServiceType(request.getServiceType());
+            order.setAddress(request.getAddress());
+            order.setContactPhone(request.getContactPhone());
+            order.setStatus(0);
+
             Order created = orderService.createOrder(order);
             return ApiResponse.success(created);
         } catch (Exception e) {
@@ -40,16 +52,43 @@ public class OrderController {
         }
     }
 
+    public static class OrderCreateRequest {
+        private String title;
+        private String description;
+        private Double amount;
+        private String serviceType;
+        private String address;
+        private String contactPhone;
+
+        public String getTitle() { return title; }
+        public void setTitle(String title) { this.title = title; }
+        public String getDescription() { return description; }
+        public void setDescription(String description) { this.description = description; }
+        public Double getAmount() { return amount; }
+        public void setAmount(Double amount) { this.amount = amount; }
+        public String getServiceType() { return serviceType; }
+        public void setServiceType(String serviceType) { this.serviceType = serviceType; }
+        public String getAddress() { return address; }
+        public void setAddress(String address) { this.address = address; }
+        public String getContactPhone() { return contactPhone; }
+        public void setContactPhone(String contactPhone) { this.contactPhone = contactPhone; }
+    }
+
     /**
      * 根据订单号查询订单
      */
     @GetMapping("/{orderNo}")
-    public ApiResponse<Order> getOrder(@PathVariable String orderNo) {
-        log.info("查询订单: orderNo={}", orderNo);
+    public ApiResponse<Order> getOrder(
+            @RequestHeader("X-User-Id") Long userId,
+            @PathVariable String orderNo) {
+        log.info("查询订单: orderNo={}, userId={}", orderNo, userId);
         try {
             Order order = orderService.getOrderByOrderNo(orderNo);
             if (order == null) {
                 return ApiResponse.error(404, "订单不存在");
+            }
+            if (!order.getUserId().equals(userId)) {
+                return ApiResponse.error(403, "无权查看此订单");
             }
             return ApiResponse.success(order);
         } catch (Exception e) {
@@ -61,8 +100,8 @@ public class OrderController {
     /**
      * 根据用户ID查询订单列表
      */
-    @GetMapping("/user/{userId}")
-    public ApiResponse<List<Order>> getOrdersByUserId(@PathVariable Long userId) {
+    @GetMapping("/list")
+    public ApiResponse<List<Order>> getOrdersByUserId(@RequestHeader("X-User-Id") Long userId) {
         log.info("查询用户订单: userId={}", userId);
         try {
             List<Order> orders = orderService.getOrdersByUserId(userId);

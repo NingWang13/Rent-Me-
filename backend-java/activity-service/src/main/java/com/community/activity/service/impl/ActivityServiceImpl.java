@@ -21,9 +21,11 @@ import java.util.List;
 public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> implements ActivityService {
 
     private final ActivitySignupMapper activitySignupMapper;
+    private final ActivityMapper activityMapper;
 
-    public ActivityServiceImpl(ActivitySignupMapper activitySignupMapper) {
+    public ActivityServiceImpl(ActivitySignupMapper activitySignupMapper, ActivityMapper activityMapper) {
         this.activitySignupMapper = activitySignupMapper;
+        this.activityMapper = activityMapper;
     }
 
     @Override

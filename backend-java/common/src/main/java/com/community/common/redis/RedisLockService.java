@@ -3,6 +3,7 @@ package com.community.common.redis;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.lang.NonNull;
 
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 public class RedisLockService {
@@ -19,10 +20,12 @@ public class RedisLockService {
     }
 
     public void unlock(@NonNull String key, @NonNull String value) {
-        String currentValue = redisTemplate.opsForValue().get(key);
-        if (value.equals(currentValue)) {
-            redisTemplate.delete(key);
-        }
+        String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+        redisTemplate.execute(
+                new org.springframework.data.redis.core.script.DefaultRedisScript<>(script, Long.class),
+                Collections.singletonList(key),
+                value
+        );
     }
 
     public boolean executeWithLock(@NonNull String key, @NonNull String value, long timeoutSeconds, Runnable action) {

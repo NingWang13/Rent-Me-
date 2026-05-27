@@ -14,9 +14,11 @@ public class OrderTimeoutJob {
     private static final Logger log = LoggerFactory.getLogger(OrderTimeoutJob.class);
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final OrderTimeoutHandler orderTimeoutHandler;
 
-    public OrderTimeoutJob(RedisTemplate<String, Object> redisTemplate) {
+    public OrderTimeoutJob(RedisTemplate<String, Object> redisTemplate, OrderTimeoutHandler orderTimeoutHandler) {
         this.redisTemplate = redisTemplate;
+        this.orderTimeoutHandler = orderTimeoutHandler;
     }
 
     @Scheduled(fixedRate = 60000)
@@ -33,8 +35,15 @@ public class OrderTimeoutJob {
 
         for (Object orderId : timeoutOrders) {
             try {
-                redisTemplate.opsForZSet().remove("order:timeout", orderId);
-                log.info("Order {} timeout cancelled", orderId);
+                String orderNo = orderId.toString();
+                boolean success = orderTimeoutHandler.cancelOrder(orderNo);
+                if (success) {
+                    redisTemplate.opsForZSet().remove("order:timeout", orderId);
+                    log.info("Order {} timeout cancelled successfully", orderNo);
+                } else {
+                    log.warn("Failed to cancel order {} via handler, removing from timeout queue", orderNo);
+                    redisTemplate.opsForZSet().remove("order:timeout", orderId);
+                }
             } catch (Exception e) {
                 log.error("Failed to cancel timeout order: {}", orderId, e);
             }
@@ -55,5 +64,10 @@ public class OrderTimeoutJob {
         } catch (Exception e) {
             log.error("Failed to clean expired data", e);
         }
+    }
+
+    @FunctionalInterface
+    public interface OrderTimeoutHandler {
+        boolean cancelOrder(String orderNo);
     }
 }

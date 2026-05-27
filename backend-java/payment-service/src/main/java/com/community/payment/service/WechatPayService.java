@@ -5,6 +5,9 @@ import com.wechat.pay.java.core.Config;
 import com.wechat.pay.java.core.RSAConfig;
 import com.wechat.pay.java.core.exception.ServiceException;
 import com.wechat.pay.java.core.http.*;
+import com.wechat.pay.java.core.notification.NotificationConfig;
+import com.wechat.pay.java.core.notification.NotificationParser;
+import com.wechat.pay.java.core.notification.RequestParam;
 import com.wechat.pay.java.service.payments.jsapi.JsapiService;
 import com.wechat.pay.java.service.payments.jsapi.model.*;
 import com.wechat.pay.java.service.refund.RefundService;
@@ -58,6 +61,7 @@ public class WechatPayService {
     private RefundService refundService;
 
     private PrivateKey privateKey;
+    private NotificationParser notificationParser;
 
     public WechatPayService(PaymentService paymentService) {
         this.paymentService = paymentService;
@@ -82,6 +86,14 @@ public class WechatPayService {
             // 初始化服务
             jsapiService = new JsapiService.Builder().config(config).build();
             refundService = new RefundService.Builder().config(config).build();
+
+            // 初始化通知解析器用于验证回调签名
+            NotificationConfig notificationConfig = new NotificationConfig.Builder()
+                    .merchantId(mchid)
+                    .privateKey(privateKey)
+                    .apiV3Key(apiKey)
+                    .build();
+            this.notificationParser = new NotificationParser(notificationConfig);
 
             log.info("微信支付SDK初始化成功");
         } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
@@ -248,15 +260,20 @@ public class WechatPayService {
 
     /**
      * 处理微信支付回调
-     * @param callbackData 回调数据
+     * @param request 回调请求
      */
-    public void handlePaymentCallback(Map<String, Object> callbackData) {
+    public void handlePaymentCallback(RequestParam request) {
         try {
-            // 使用SDK验证签名已在过滤器中完成
-            // 这里直接解析回调数据
-            String transactionNo = (String) callbackData.get("out_trade_no");
-            String channelTransactionNo = (String) callbackData.get("transaction_id");
-            String tradeState = (String) callbackData.get("trade_state");
+            // 使用SDK验证签名并解密回调数据
+            String decryptBody = notificationParser.parse(request, com.wechat.pay.java.service.payments.model.Transaction.class);
+
+            // 解析回调数据
+            com.wechat.pay.java.service.payments.model.Transaction transaction =
+                    com.wechat.pay.java.core.util.JsonUtil.toObject(decryptBody, com.wechat.pay.java.service.payments.model.Transaction.class);
+
+            String transactionNo = transaction.getOutTradeNo();
+            String channelTransactionNo = transaction.getTransactionId();
+            String tradeState = transaction.getTradeState().name();
 
             // 更新交易状态
             boolean success = "SUCCESS".equals(tradeState);

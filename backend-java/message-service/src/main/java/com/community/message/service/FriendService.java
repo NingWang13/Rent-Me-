@@ -51,6 +51,9 @@ public class FriendService {
 
     @Transactional(rollbackFor = Exception.class)
     public FriendRelation applyFriend(FriendRelation relation) {
+        if (relation.getUserId().equals(relation.getFriendId())) {
+            throw new BusinessException(400, "不能添加自己为好友");
+        }
         FriendRelation existing = getFriendRelation(relation.getUserId(), relation.getFriendId());
         if (existing != null && existing.getStatus() == 1) {
             throw new BusinessException(ErrorCode.ALREADY_FRIENDS);
@@ -72,6 +75,9 @@ public class FriendService {
         }
         if (!relation.getFriendId().equals(userId)) {
             throw new BusinessException(ErrorCode.FORBIDDEN);
+        }
+        if (relation.getUserId().equals(userId)) {
+            throw new BusinessException(400, "不能接受自己的好友申请");
         }
         relation.setStatus(1);
         relation.setAgreeTime(LocalDateTime.now());

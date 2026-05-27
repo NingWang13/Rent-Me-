@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.community.common.exception.BusinessException;
 import com.community.common.exception.ErrorCode;
+import com.community.common.redis.RedisLockService;
 import com.community.common.response.PageResponse;
 import com.community.credit.entity.CreditLog;
 import com.community.credit.mapper.CreditLogMapper;
@@ -17,6 +18,12 @@ import java.time.LocalDateTime;
 
 @Service
 public class CreditServiceImpl extends ServiceImpl<CreditLogMapper, CreditLog> implements CreditService {
+
+    private final RedisLockService redisLockService;
+
+    public CreditServiceImpl(RedisLockService redisLockService) {
+        this.redisLockService = redisLockService;
+    }
 
     @Override
     public int getCreditBalance(Long userId) {
@@ -40,34 +47,49 @@ public class CreditServiceImpl extends ServiceImpl<CreditLogMapper, CreditLog> i
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public synchronized CreditLog checkin(Long userId) {
-        LocalDate today = LocalDate.now();
-        LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
+    public CreditLog checkin(Long userId) {
+        String lockKey = "credit:checkin:lock:" + userId;
+        String lockValue = String.valueOf(System.currentTimeMillis());
 
-        LambdaQueryWrapper<CreditLog> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(CreditLog::getUserId, userId);
-        wrapper.eq(CreditLog::getType, 1);
-        wrapper.ge(CreditLog::getCreateTime, startOfDay);
-        wrapper.lt(CreditLog::getCreateTime, endOfDay);
-        long count = this.count(wrapper);
+        boolean locked = false;
+        try {
+            locked = redisLockService.tryLock(lockKey, lockValue, 5);
+            if (!locked) {
+                throw new BusinessException(500, "系统繁忙，请稍后重试");
+            }
 
-        if (count > 0) {
-            throw new BusinessException(ErrorCode.CHECKIN_DUPLICATE);
+            LocalDate today = LocalDate.now();
+            LocalDateTime startOfDay = today.atStartOfDay();
+            LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
+
+            LambdaQueryWrapper<CreditLog> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(CreditLog::getUserId, userId);
+            wrapper.eq(CreditLog::getType, 1);
+            wrapper.ge(CreditLog::getCreateTime, startOfDay);
+            wrapper.lt(CreditLog::getCreateTime, endOfDay);
+            long count = this.count(wrapper);
+
+            if (count > 0) {
+                throw new BusinessException(ErrorCode.CHECKIN_DUPLICATE);
+            }
+
+            int currentBalance = getCreditBalance(userId);
+            int checkinAmount = 10;
+            int newBalance = currentBalance + checkinAmount;
+
+            CreditLog log = new CreditLog();
+            log.setUserId(userId);
+            log.setChangeAmount(checkinAmount);
+            log.setBalanceAfter(newBalance);
+            log.setType(1);
+            log.setDescription("每日签到");
+            this.save(log);
+            return log;
+        } finally {
+            if (locked) {
+                redisLockService.unlock(lockKey, lockValue);
+            }
         }
-
-        int currentBalance = getCreditBalance(userId);
-        int checkinAmount = 10;
-        int newBalance = currentBalance + checkinAmount;
-
-        CreditLog log = new CreditLog();
-        log.setUserId(userId);
-        log.setChangeAmount(checkinAmount);
-        log.setBalanceAfter(newBalance);
-        log.setType(1);
-        log.setDescription("每日签到");
-        this.save(log);
-        return log;
     }
 
     @Override
