@@ -1,0 +1,38 @@
+<nav-bar title="活动中心" showBack="{{true}}" />
+<view class="container">
+  <view class="loading-container" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <view class="activity-list" wx:elif="{{activities.length > 0}}">
+    <view class="activity-card" wx:for="{{activities}}" wx:key="id" bindtap="onActivityTap" data-id="{{item.id}}">
+      <view class="activity-header">
+        <view class="activity-status status-{{item.status}}">
+          <text class="status-text">{{item.status === 1 ? '进行中' : item.status === 2 ? '已结束' : '未开始'}}</text>
+        </view>
+        <view class="activity-tag" wx:if="{{item.tag}}">
+          <text class="tag-text">{{item.tag}}</text>
+        </view>
+      </view>
+      <view class="activity-content">
+        <text class="activity-title">{{item.title}}</text>
+        <text class="activity-desc">{{item.description || '暂无描述'}}</text>
+      </view>
+      <view class="activity-footer">
+        <view class="activity-meta">
+          <text class="meta-item">📅 {{item.startTime}}</text>
+          <text class="meta-item">👥 {{item.participantCount}}人参与</text>
+        </view>
+        <view class="activity-action">
+          <text class="action-text">{{item.status === 1 ? '立即参与' : '查看详情'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-container" wx:else>
+    <text class="empty-icon">🎉</text>
+    <text class="empty-text">暂无活动</text>
+    <text class="empty-desc">敬请期待更多精彩活动</text>
+  </view>
+</view>

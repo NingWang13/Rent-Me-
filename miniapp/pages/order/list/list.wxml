@@ -1,0 +1,60 @@
+<view class="container">
+  <view class="loading-container" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <view class="not-login-container" wx:elif="{{!isLogin}}">
+    <text class="not-login-icon">📋</text>
+    <text class="not-login-text">请先登录查看订单</text>
+    <button class="login-btn" bindtap="goToLogin">立即登录</button>
+  </view>
+
+  <view wx:else>
+    <view class="tab-header">
+      <scroll-view scroll-x class="tab-list">
+        <view wx:for="{{tabs}}" wx:key="index"
+              class="tab-item {{activeTab === index ? 'active' : ''}}"
+              bindtap="switchTab"
+              data-index="{{index}}">
+          <text>{{item.name}}</text>
+          <text class="tab-badge" wx:if="{{item.count > 0}}">{{item.count > 99 ? '99+' : item.count}}</text>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="order-list">
+      <view class="order-card" wx:for="{{orders}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+        <view class="order-header">
+          <text class="order-id">订单号: {{item.orderNo}}</text>
+          <text class="order-status status-{{item.status}}">{{item.statusText}}</text>
+        </view>
+
+        <view class="order-content">
+          <view class="order-title">{{item.title}}</view>
+          <view class="order-amount">¥{{item.actualAmount || item.amount}}</view>
+        </view>
+
+        <view class="order-footer">
+          <text class="order-time">{{item.createTime}}</text>
+          <view class="order-actions">
+            <button wx:if="{{item.status === 0}}" class="action-btn primary" catchtap="cancelOrder" data-id="{{item.id}}">取消订单</button>
+            <button wx:if="{{item.status === 2}}" class="action-btn" catchtap="confirmComplete" data-id="{{item.id}}">确认完成</button>
+          </view>
+        </view>
+      </view>
+
+      <view class="empty-container" wx:if="{{orders.length === 0 && !loading}}">
+        <text class="empty-icon">📦</text>
+        <text class="empty-text">暂无订单记录</text>
+      </view>
+
+      <view class="no-more" wx:if="{{!hasMore && orders.length > 0}}">
+        <text>没有更多了</text>
+      </view>
+
+      <view class="loading-more" wx:if="{{loadingMore && orders.length > 0}}">
+        <text>加载中...</text>
+      </view>
+    </view>
+  </view>
+</view>

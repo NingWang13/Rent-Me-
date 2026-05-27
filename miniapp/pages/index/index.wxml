@@ -1,0 +1,92 @@
+<nav-bar title="三代互助社区" />
+<view class="container">
+  <view class="header">
+    <view class="user-greeting">
+      <text class="greeting-text">{{isLogin ? '欢迎回来，' + userInfo.nickname : '您好，请先登录'}}</text>
+    </view>
+    <view class="header-actions">
+      <view class="elder-toggle-btn" bindtap="switchElderMode">
+        <text class="toggle-icon">{{elderMode ? '标准' : '适老'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="banners">
+    <swiper indicator-dots indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#fff" autoplay interval="3000">
+      <block wx:for="{{banners}}" wx:key="id">
+        <swiper-item>
+          <image src="{{item.image}}" class="banner-image" mode="aspectFill" />
+        </swiper-item>
+      </block>
+    </swiper>
+  </view>
+
+  <view class="user-section" wx:if="{{isLogin}}">
+    <view class="user-stats">
+      <view class="stat-item">
+        <text class="stat-value">{{credits}}</text>
+        <text class="stat-label">积分</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{completedCount}}</text>
+        <text class="stat-label">已完成</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{masterApprenticeCount}}</text>
+        <text class="stat-label">师徒</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="login-prompt" wx:if="{{!isLogin}}">
+    <button class="login-btn" bindtap="goToLogin">立即登录</button>
+  </view>
+
+  <view class="quick-actions">
+    <view class="section-title">
+      <text class="title-text">快捷服务</text>
+    </view>
+    <view class="actions-grid">
+      <view class="action-item" wx:for="{{quickActions}}" wx:key="id" bindtap="onQuickAction" data-url="{{item.url}}">
+        <view class="action-icon">
+          <text class="icon-symbol">{{item.icon}}</text>
+        </view>
+        <text class="action-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="wish-section">
+    <view class="section-title">
+      <text class="title-text">最新心愿</text>
+      <text class="more-link" bindtap="viewMoreWishes">查看更多 ></text>
+    </view>
+    <view class="wish-list">
+      <view class="wish-card" wx:for="{{latestWishes}}" wx:key="id" bindtap="viewWishDetail" data-id="{{item.id}}">
+        <view class="wish-header">
+          <view class="wish-user">
+            <image class="wish-avatar" src="{{item.userAvatar || '/images/default-avatar.png'}}" />
+            <text class="wish-username">{{item.userName}}</text>
+          </view>
+          <text class="wish-time">{{item.createTime}}</text>
+        </view>
+        <text class="wish-title">{{item.title}}</text>
+        <text class="wish-content">{{item.description}}</text>
+        <view class="wish-footer">
+          <view class="wish-tags">
+            <text class="wish-tag">{{item.categoryName}}</text>
+          </view>
+          <text class="wish-reward">{{item.reward}}积分</text>
+        </view>
+      </view>
+    </view>
+    <empty-state 
+      wx:if="{{latestWishes.length === 0 && !loading}}"
+      iconText="🤝"
+      title="暂无心愿"
+      desc="还没有人发布心愿，快来发布你的第一个心愿吧"
+      actions="{{emptyActions}}"
+      bind:action="onEmptyAction"
+    />
+  </view>
+</view>

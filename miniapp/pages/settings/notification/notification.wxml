@@ -1,0 +1,78 @@
+<nav-bar title="消息通知设置" />
+<view class="container">
+  <view class="settings-header">
+    <text class="header-title">消息通知管理</text>
+    <text class="header-desc">管理你的消息通知权限和推送偏好</text>
+  </view>
+
+  <view class="settings-section">
+    <view class="section-title">通知权限</view>
+    <view class="setting-item">
+      <view class="item-content">
+        <text class="item-label">开启消息通知</text>
+        <text class="item-desc">开启后可及时收到重要通知</text>
+      </view>
+      <switch checked="{{notificationEnabled}}" bindchange="toggleNotification" color="#1890ff" />
+    </view>
+  </view>
+
+  <view class="settings-section">
+    <view class="section-title">通知类型</view>
+    
+    <view class="setting-item">
+      <view class="item-content">
+        <text class="item-label">订单通知</text>
+        <text class="item-desc">订单状态变更、订单完成等</text>
+      </view>
+      <switch checked="{{orderNotification}}" bindchange="toggleOrderNotification" color="#1890ff" />
+    </view>
+
+    <view class="setting-item">
+      <view class="item-content">
+        <text class="item-label">支付通知</text>
+        <text class="item-desc">支付成功、退款等</text>
+      </view>
+      <switch checked="{{paymentNotification}}" bindchange="togglePaymentNotification" color="#1890ff" />
+    </view>
+
+    <view class="setting-item">
+      <view class="item-content">
+        <text class="item-label">系统通知</text>
+        <text class="item-desc">系统公告、活动通知等</text>
+      </view>
+      <switch checked="{{systemNotification}}" bindchange="toggleSystemNotification" color="#1890ff" />
+    </view>
+
+    <view class="setting-item">
+      <view class="item-content">
+        <text class="item-label">心愿通知</text>
+        <text class="item-desc">心愿被认领、心愿完成等</text>
+      </view>
+      <switch checked="{{wishNotification}}" bindchange="toggleWishNotification" color="#1890ff" />
+    </view>
+  </view>
+
+  <view class="settings-section">
+    <view class="section-title">推送方式</view>
+    
+    <view class="setting-item">
+      <view class="item-content">
+        <text class="item-label">应用内推送</text>
+        <text class="item-desc">在小程序内显示弹窗提示</text>
+      </view>
+      <switch checked="{{inAppNotification}}" bindchange="toggleInAppNotification" color="#1890ff" />
+    </view>
+
+    <view class="setting-item">
+      <view class="item-content">
+        <text class="item-label">订阅消息</text>
+        <text class="item-desc">通过微信订阅消息推送</text>
+      </view>
+      <switch checked="{{subscribeNotification}}" bindchange="toggleSubscribeNotification" color="#1890ff" />
+    </view>
+  </view>
+
+  <view class="settings-actions">
+    <button class="reset-btn" bindtap="resetSettings">恢复默认设置</button>
+  </view>
+</view>

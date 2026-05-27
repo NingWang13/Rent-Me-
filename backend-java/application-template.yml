@@ -1,0 +1,47 @@
+# 应用配置模板
+# 复制此文件为 application-local.yml 并修改相应配置
+
+# 数据库配置
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/mutual_help?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: your_mysql_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+# Redis 配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: your_redis_password
+      database: 0
+
+# 微信小程序配置
+wechat:
+  app-id: your_wechat_miniapp_appid
+  app-secret: your_wechat_miniapp_secret
+
+# 微信支付配置
+  pay:
+    appid: your_wechat_pay_appid
+    mchid: your_wechat_pay_mchid
+    api-key: your_wechat_pay_api_key
+    notify-url: http://your_domain/api/v1/wechat-pay/callback
+    cert-path: classpath:wechat/apiclient_cert.pem
+    key-path: classpath:wechat/apiclient_key.pem
+
+# JWT 配置
+jwt:
+  secret: your_jwt_secret_key_至少32位长度
+  expiration: 86400000
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.community: DEBUG
+
+# 服务器配置
+server:
+  port: 8080

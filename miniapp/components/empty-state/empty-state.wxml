@@ -1,0 +1,28 @@
+<view class="empty-state" style="{{customStyle}}">
+  <view class="empty-state__icon">
+    <image 
+      wx:if="{{iconImage}}" 
+      src="{{iconImage}}" 
+      mode="aspectFit"
+      class="empty-state__icon-image"
+    />
+    <text wx:else class="empty-state__icon-text">{{iconText}}</text>
+  </view>
+  
+  <view class="empty-state__content">
+    <text class="empty-state__title">{{title}}</text>
+    <text class="empty-state__desc">{{desc}}</text>
+    
+    <view wx:if="{{actions.length > 0}}" class="empty-state__actions">
+      <button 
+        wx:for="{{actions}}" 
+        wx:key="index"
+        class="empty-state__action-btn {{item.type === 'primary' ? 'empty-state__action-btn--primary' : ''}}"
+        bindtap="onActionTap"
+        data-action="{{item}}"
+      >
+        {{item.text}}
+      </button>
+    </view>
+  </view>
+</view>

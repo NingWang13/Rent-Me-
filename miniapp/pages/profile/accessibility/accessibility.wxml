@@ -1,0 +1,61 @@
+<nav-bar title="辅助功能" showBack="{{true}}" />
+<view class="container">
+  <view class="setting-section">
+    <view class="section-title">显示设置</view>
+
+    <view class="setting-item">
+      <view class="setting-info">
+        <text class="setting-name">大字体模式</text>
+        <text class="setting-desc">增大页面文字大小，方便阅读</text>
+      </view>
+      <switch checked="{{largeFont}}" bindchange="toggleLargeFont" />
+    </view>
+
+    <view class="setting-item">
+      <view class="setting-info">
+        <text class="setting-name">高对比度</text>
+        <text class="setting-desc">增强文字与背景对比度</text>
+      </view>
+      <switch checked="{{highContrast}}" bindchange="toggleHighContrast" />
+    </view>
+  </view>
+
+  <view class="setting-section">
+    <view class="section-title">交互设置</view>
+
+    <view class="setting-item">
+      <view class="setting-info">
+        <text class="setting-name">简化模式</text>
+        <text class="setting-desc">隐藏动画和特效，简化界面</text>
+      </view>
+      <switch checked="{{simplifyMode}}" bindchange="toggleSimplifyMode" />
+    </view>
+
+    <view class="setting-item">
+      <view class="setting-info">
+        <text class="setting-name">减少动态效果</text>
+        <text class="setting-desc">关闭页面切换动画</text>
+      </view>
+      <switch checked="{{reduceMotion}}" bindchange="toggleReduceMotion" />
+    </view>
+  </view>
+
+  <view class="preview-section">
+    <view class="section-title">预览效果</view>
+    <view class="preview-card {{largeFont ? 'large' : ''}}">
+      <text class="preview-title {{largeFont ? 'large' : ''}}">示例标题文字</text>
+      <text class="preview-content {{largeFont ? 'large' : ''}}">示例内容文字</text>
+      <button class="preview-btn {{largeFont ? 'large' : ''}}">示例按钮</button>
+    </view>
+  </view>
+
+  <button class="reset-btn" bindtap="resetSettings">恢复默认设置</button>
+
+  <view class="tips-section">
+    <view class="tips-title">温馨提示</view>
+    <text class="tips-text">
+      如果您在使用过程中遇到任何问题，可以通过"帮助与反馈"联系我们。
+      我们致力于为所有用户提供便捷的服务体验。
+    </text>
+  </view>
+</view>

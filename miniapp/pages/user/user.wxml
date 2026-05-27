@@ -1,0 +1,199 @@
+<nav-bar title="个人中心" />
+<view class="container">
+  <view class="profile-header">
+    <view class="user-info" bindtap="goToEditProfile">
+      <image class="avatar" src="{{userInfo.avatar || '/images/default-avatar.png'}}" mode="aspectFill" />
+      <view class="info-content">
+        <view class="nickname-row">
+          <text class="nickname">{{userInfo.nickname || '未登录'}}</text>
+          <view class="vip-badge" wx:if="{{userInfo.vipLevel > 0}}">
+            <text class="vip-text">VIP{{userInfo.vipLevel}}</text>
+          </view>
+        </view>
+        <view class="id-row">
+          <text class="user-id">ID: {{userInfo.id || '--'}}</text>
+          <text class="edit-hint" catchtap="goToEditProfile">编辑</text>
+        </view>
+        <view class="user-tags">
+          <text class="tag" wx:if="{{userInfo.userType === 2}}">认证用户</text>
+          <text class="tag" wx:if="{{userInfo.identityVerified}}">已实名</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="stats-bar">
+      <view class="stat-item" bindtap="goToCredits">
+        <text class="stat-value">{{userInfo.creditScore || 0}}</text>
+        <text class="stat-label">积分</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item" bindtap="goToFollowers">
+        <text class="stat-value">{{userInfo.followerCount || 0}}</text>
+        <text class="stat-label">关注</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item" bindtap="goToFollowing">
+        <text class="stat-value">{{userInfo.followingCount || 0}}</text>
+        <text class="stat-label">粉丝</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="elder-mode-banner" wx:if="{{elderMode}}">
+    <view class="elder-toggle" bindtap="switchElderMode">
+      <text class="elder-icon">适</text>
+      <text class="elder-text">适老模式已开启</text>
+    </view>
+    <text class="elder-arrow">></text>
+  </view>
+
+  <view class="order-section">
+    <view class="section-header">
+      <text class="section-title">我的订单</text>
+      <view class="see-all" bindtap="goToOrderList">
+        <text>查看全部</text>
+        <text class="arrow">></text>
+      </view>
+    </view>
+    <view class="order-status-grid">
+      <view class="status-item" bindtap="goToOrderList" data-status="0">
+        <view class="status-icon">
+          <text class="iconfont">待付款</text>
+          <view class="badge" wx:if="{{orderCounts.pendingPay > 0}}">{{orderCounts.pendingPay > 99 ? '99+' : orderCounts.pendingPay}}</view>
+        </view>
+      </view>
+      <view class="status-item" bindtap="goToOrderList" data-status="1">
+        <view class="status-icon">
+          <text class="iconfont">已支付</text>
+          <view class="badge" wx:if="{{orderCounts.paid > 0}}">{{orderCounts.paid > 99 ? '99+' : orderCounts.paid}}</view>
+        </view>
+      </view>
+      <view class="status-item" bindtap="goToOrderList" data-status="2">
+        <view class="status-icon">
+          <text class="iconfont">配送中</text>
+          <view class="badge" wx:if="{{orderCounts.shipping > 0}}">{{orderCounts.shipping > 99 ? '99+' : orderCounts.shipping}}</view>
+        </view>
+      </view>
+      <view class="status-item" bindtap="goToOrderList" data-status="3">
+        <view class="status-icon">
+          <text class="iconfont">已完成</text>
+          <view class="badge" wx:if="{{orderCounts.completed > 0}}">{{orderCounts.completed > 99 ? '99+' : orderCounts.completed}}</view>
+        </view>
+      </view>
+      <view class="status-item" bindtap="goToOrderList" data-status="4">
+        <view class="status-icon">
+          <text class="iconfont">已取消</text>
+          <view class="badge" wx:if="{{orderCounts.cancelled > 0}}">{{orderCounts.cancelled > 99 ? '99+' : orderCounts.cancelled}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="menu-section">
+    <view class="menu-group">
+      <view class="menu-item" bindtap="goToMyWishes">
+        <view class="menu-left">
+          <text class="menu-icon">心</text>
+          <text class="menu-text">我的心愿</text>
+        </view>
+        <view class="menu-right">
+          <text class="menu-value">{{myWishesCount}}个</text>
+          <text class="arrow">></text>
+        </view>
+      </view>
+      <view class="menu-item" bindtap="goToMyServices">
+        <view class="menu-left">
+          <text class="menu-icon">服</text>
+          <text class="menu-text">我的服务</text>
+        </view>
+        <view class="menu-right">
+          <text class="menu-value">{{myServicesCount}}个</text>
+          <text class="arrow">></text>
+        </view>
+      </view>
+      <view class="menu-item" bindtap="goToCreditRecords">
+        <view class="menu-left">
+          <text class="menu-icon">分</text>
+          <text class="menu-text">积分明细</text>
+        </view>
+        <view class="menu-right">
+          <text class="arrow">></text>
+        </view>
+      </view>
+    </view>
+
+    <view class="menu-group">
+      <view class="menu-item" bindtap="goToPaymentPassword">
+        <view class="menu-left">
+          <text class="menu-icon">支</text>
+          <text class="menu-text">支付密码</text>
+        </view>
+        <view class="menu-right">
+          <text class="menu-status {{userInfo.paymentPasswordSet ? 'set' : 'unset'}}">
+            {{userInfo.paymentPasswordSet ? '已设置' : '未设置'}}
+          </text>
+          <text class="arrow">></text>
+        </view>
+      </view>
+      <view class="menu-item" bindtap="goToIdentityVerify">
+        <view class="menu-left">
+          <text class="menu-icon">认</text>
+          <text class="menu-text">身份认证</text>
+        </view>
+        <view class="menu-right">
+          <text class="menu-status {{userInfo.identityVerified ? 'set' : 'unset'}}">
+            {{userInfo.identityVerified ? '已认证' : '未认证'}}
+          </text>
+          <text class="arrow">></text>
+        </view>
+      </view>
+    </view>
+
+    <view class="menu-group">
+      <view class="menu-item" bindtap="goToNotificationSettings">
+        <view class="menu-left">
+          <text class="menu-icon">通</text>
+          <text class="menu-text">消息通知</text>
+        </view>
+        <view class="menu-right">
+          <text class="arrow">></text>
+        </view>
+      </view>
+      <view class="menu-item" bindtap="goToAccessibility">
+        <view class="menu-left">
+          <text class="menu-icon">辅</text>
+          <text class="menu-text">辅助功能</text>
+        </view>
+        <view class="menu-right">
+          <text class="arrow">></text>
+        </view>
+      </view>
+      <view class="menu-item" bindtap="goToFeedback">
+        <view class="menu-left">
+          <text class="menu-icon">馈</text>
+          <text class="menu-text">帮助与反馈</text>
+        </view>
+        <view class="menu-right">
+          <text class="arrow">></text>
+        </view>
+      </view>
+      <view class="menu-item" bindtap="goToAbout">
+        <view class="menu-left">
+          <text class="menu-icon">关</text>
+          <text class="menu-text">关于我们</text>
+        </view>
+        <view class="menu-right">
+          <text class="arrow">></text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="logout-section" wx:if="{{isLogin}}">
+    <button class="logout-btn" bindtap="onLogout">退出登录</button>
+  </view>
+
+  <view class="loading-overlay" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+  </view>
+</view>

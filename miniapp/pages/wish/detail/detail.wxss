@@ -1,0 +1,227 @@
+.nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+}
+
+.container {
+  min-height: 100vh;
+  background-color: var(--bg);
+  padding-top: 88rpx;
+  padding-bottom: 40rpx;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 160rpx 0;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: var(--text-tertiary);
+}
+
+.detail-content {
+  padding: 24rpx 32rpx;
+}
+
+.wish-hero {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 40rpx 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: var(--shadow-sm);
+  border: 1rpx solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.wish-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6rpx;
+  height: 100%;
+  background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+}
+
+.wish-hero-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.wish-status {
+  padding: 8rpx 20rpx;
+  border-radius: var(--radius-xl);
+}
+
+.wish-status.pending {
+  background: rgba(255, 107, 107, 0.1);
+}
+
+.wish-status.ongoing {
+  background: rgba(77, 171, 247, 0.1);
+}
+
+.wish-status.completed {
+  background: rgba(56, 217, 169, 0.1);
+}
+
+.status-text {
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.wish-status.pending .status-text {
+  color: var(--primary);
+}
+
+.wish-status.ongoing .status-text {
+  color: var(--accent-blue);
+}
+
+.wish-status.completed .status-text {
+  color: var(--accent-green);
+}
+
+.wish-category {
+  display: flex;
+  align-items: center;
+}
+
+.category-tag {
+  padding: 8rpx 20rpx;
+  background: linear-gradient(135deg, var(--secondary) 0%, #A78BFA 100%);
+  color: #FFFFFF;
+  font-size: 24rpx;
+  font-weight: 500;
+  border-radius: var(--radius-xl);
+}
+
+.wish-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 20rpx;
+  line-height: 1.4;
+}
+
+.wish-content {
+  display: block;
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.wish-meta-card {
+  background: var(--card);
+  padding: 32rpx;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 24rpx;
+  border: 1rpx solid var(--border);
+}
+
+.wish-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32rpx;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.meta-label {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+}
+
+.meta-value {
+  font-size: 28rpx;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.meta-value.reward {
+  color: var(--primary);
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.action-section {
+  margin-top: 40rpx;
+}
+
+.claim-btn, .cancel-btn {
+  width: 100%;
+  height: 88rpx;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(255, 107, 107, 0.3);
+}
+
+.claim-btn {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+}
+
+.cancel-btn {
+  background: var(--card);
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-sm);
+  border: 1rpx solid var(--border);
+}
+
+.btn-text {
+  color: #FFFFFF;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.cancel-btn .btn-text {
+  color: var(--text-secondary);
+}
+
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 0;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  margin-bottom: 40rpx;
+}
+
+.back-btn {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: #FFFFFF;
+  font-size: 28rpx;
+  font-weight: 500;
+  padding: 0 48rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 8rpx 24rpx rgba(255, 107, 107, 0.3);
+}

@@ -1,0 +1,93 @@
+<nav-bar title="服务进度" />
+<view class="container">
+  <view class="loading-container" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <view class="not-login-container" wx:elif="{{!isLogin}}">
+    <text class="not-login-icon">📋</text>
+    <text class="not-login-text">请先登录</text>
+    <button class="login-btn" bindtap="goToLogin">立即登录</button>
+  </view>
+
+  <view wx:else>
+    <view class="tab-header">
+      <scroll-view scroll-x class="tab-list">
+        <view wx:for="{{tabs}}" wx:key="index"
+              class="tab-item {{activeTab === index ? 'active' : ''}}"
+              bindtap="switchTab"
+              data-index="{{index}}">
+          <text>{{item.name}}</text>
+          <text class="tab-count" wx:if="{{item.count > 0}}">{{item.count}}</text>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="service-list">
+      <view class="service-card" wx:for="{{services}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+        <view class="service-header">
+          <view class="service-title-row">
+            <text class="service-title">{{item.title}}</text>
+            <view class="service-status status-{{item.status}}">
+              <text>{{item.statusText}}</text>
+            </view>
+          </view>
+          <text class="service-id">服务号: {{item.serviceNo}}</text>
+        </view>
+
+        <view class="service-progress">
+          <view class="progress-steps">
+            <view wx:for="{{item.progressSteps}}" wx:for-item="step" wx:key="index" class="progress-step">
+              <view class="step-dot {{step.completed ? 'completed' : ''}} {{step.current ? 'current' : ''}}"></view>
+              <view class="step-line" wx:if="{{index < item.progressSteps.length - 1}}"></view>
+              <text class="step-label">{{step.label}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="service-content">
+          <view class="content-row">
+            <text class="content-label">服务类型</text>
+            <text class="content-value">{{item.serviceTypeName}}</text>
+          </view>
+          <view class="content-row">
+            <text class="content-label">服务时间</text>
+            <text class="content-value">{{item.serviceTime}}</text>
+          </view>
+          <view class="content-row">
+            <text class="content-label">服务地点</text>
+            <text class="content-value">{{item.location}}</text>
+          </view>
+        </view>
+
+        <view class="service-footer">
+          <view class="footer-left">
+            <text class="create-time">{{item.createTime}}</text>
+          </view>
+          <view class="footer-right">
+            <text class="reward-text">获得 {{item.rewardCredit}} 积分</text>
+          </view>
+        </view>
+
+        <view class="service-actions" wx:if="{{item.status === 2}}">
+          <button class="action-btn" bindtap="reportProgress" data-id="{{item.id}}">上报进度</button>
+          <button class="action-btn primary" bindtap="completeService" data-id="{{item.id}}">完成服务</button>
+        </view>
+      </view>
+
+      <view class="empty-container" wx:if="{{services.length === 0 && !loading}}">
+        <text class="empty-icon">📋</text>
+        <text class="empty-text">暂无相关服务</text>
+        <button class="empty-btn" bindtap="goToWishList">去心愿墙看看</button>
+      </view>
+
+      <view class="no-more" wx:if="{{!hasMore && services.length > 0}}">
+        <text>没有更多了</text>
+      </view>
+
+      <view class="loading-more" wx:if="{{loadingMore && services.length > 0}}">
+        <text>加载中...</text>
+      </view>
+    </view>
+  </view>
+</view>

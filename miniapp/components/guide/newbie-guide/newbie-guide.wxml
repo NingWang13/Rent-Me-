@@ -1,0 +1,27 @@
+<view class="guide-overlay" wx:if="{{show}}">
+  <view class="guide-content">
+    <view class="guide-image">
+      <image src="{{steps[currentStep].image}}" mode="aspectFit" />
+    </view>
+
+    <view class="guide-text">
+      <text class="guide-title">{{steps[currentStep].title}}</text>
+      <text class="guide-desc">{{steps[currentStep].description}}</text>
+    </view>
+
+    <view class="guide-dots">
+      <view wx:for="{{steps}}" wx:key="index"
+            class="dot {{currentStep === index ? 'active' : ''}}"
+            bindtap="onTapDots"
+            data-index="{{index}}">
+      </view>
+    </view>
+
+    <view class="guide-buttons">
+      <button class="skip-btn" bindtap="skipGuide">跳过</button>
+      <button class="next-btn" bindtap="nextStep">
+        {{currentStep === steps.length - 1 ? '开始使用' : '下一步'}}
+      </button>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,77 @@
+<nav-bar title="我的群聊" />
+<view class="container">
+  <view class="loading-container" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <view class="group-list" wx:elif="{{groups.length > 0}}">
+    <view class="group-card" wx:for="{{groups}}" wx:key="id" bindtap="onEnterGroup" data-id="{{item.id}}">
+      <view class="group-header">
+        <view class="group-avatar" style="background: {{item.avatarColor}}"></view>
+        <view class="group-info">
+          <text class="group-name">{{item.name}}</text>
+          <text class="group-desc">{{item.description || '暂无描述'}}</text>
+        </view>
+        <view class="group-badge role-{{item.role}}">
+          <text class="role-text">{{item.role === 1 ? '群主' : item.role === 2 ? '管理员' : '成员'}}</text>
+        </view>
+      </view>
+      <view class="group-footer">
+        <view class="group-meta">
+          <text class="meta-item">👥 {{item.memberCount}}人</text>
+          <text class="meta-item">📅 {{item.joinTime}}</text>
+        </view>
+        <view class="group-actions">
+          <button class="action-btn primary" bindtap="onEnterGroup" data-id="{{item.id}}" size="mini">进入群聊</button>
+          <button class="action-btn secondary" bindtap="onShowGroupMenu" data-id="{{item.id}}" data-name="{{item.name}}" data-role="{{item.role}}" size="mini">管理</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-container" wx:else>
+    <text class="empty-icon">💬</text>
+    <text class="empty-text">还没有加入任何群聊</text>
+    <text class="empty-desc">创建或加入群聊，开始群聊体验</text>
+    
+    <view class="create-btn-wrapper" bindtap="goToCreateGroup">
+      <text class="create-btn-icon">+</text>
+      <text class="create-btn-text">创建群聊</text>
+    </view>
+  </view>
+
+  <view class="no-more" wx:if="{{!hasMore && groups.length > 0}}">
+    <text>没有更多了</text>
+  </view>
+</view>
+
+<view class="modal-mask" wx:if="{{showMenuModal}}" bindtap="onCloseMenuModal">
+  <view class="modal-content" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">{{currentGroupName}} - 管理</text>
+      <text class="modal-close" bindtap="onCloseMenuModal">×</text>
+    </view>
+    <view class="modal-body">
+      <view class="menu-item" bindtap="onViewMembers">
+        <text class="menu-icon">👥</text>
+        <text class="menu-text">查看成员</text>
+      </view>
+      <view class="menu-item" bindtap="onEditGroupInfo" wx:if="{{currentRole === 1 || currentRole === 2}}">
+        <text class="menu-icon">✏️</text>
+        <text class="menu-text">编辑群信息</text>
+      </view>
+      <view class="menu-item" bindtap="onInviteMember" wx:if="{{currentRole === 1 || currentRole === 2}}">
+        <text class="menu-icon">➕</text>
+        <text class="menu-text">邀请成员</text>
+      </view>
+      <view class="menu-item danger" bindtap="onQuitGroup" wx:if="{{currentRole === 3}}">
+        <text class="menu-icon">🚪</text>
+        <text class="menu-text">退出群聊</text>
+      </view>
+      <view class="menu-item danger" bindtap="onDismissGroup" wx:if="{{currentRole === 1}}">
+        <text class="menu-icon">💥</text>
+        <text class="menu-text">解散群聊</text>
+      </view>
+    </view>
+  </view>
+</view>

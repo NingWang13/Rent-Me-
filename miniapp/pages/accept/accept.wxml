@@ -1,0 +1,80 @@
+<nav-bar title="接单大厅" />
+<view class="container">
+  <view class="stats-bar">
+    <view class="stat-item">
+      <text class="stat-value">{{availableCount}}</text>
+      <text class="stat-label">可接订单</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">{{acceptedCount}}</text>
+      <text class="stat-label">已接订单</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">{{completedCount}}</text>
+      <text class="stat-label">已完成</text>
+    </view>
+  </view>
+
+  <view class="category-tabs">
+    <scroll-view scroll-x class="tab-scroll">
+      <view class="tab-list">
+        <view class="tab-item {{item.selected ? 'active' : ''}}"
+              wx:for="{{categories}}"
+              wx:key="id"
+              bindtap="onSelectCategory"
+              data-id="{{item.id}}">
+          <text class="tab-text">{{item.name}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="order-list">
+    <view class="order-item" wx:for="{{orders}}" wx:key="id">
+      <view class="order-header">
+        <view class="order-user">
+          <view class="user-avatar"></view>
+          <text class="user-name">{{item.userName}}</text>
+        </view>
+        <view class="order-status status-{{item.status}}">
+          <text class="status-text">{{item.status === 1 ? '待接单' : '已接单'}}</text>
+        </view>
+      </view>
+      <view class="order-content">
+        <text class="order-title">{{item.title}}</text>
+        <text class="order-desc">{{item.content}}</text>
+      </view>
+      <view class="order-tags" wx:if="{{item.tags}}">
+        <text class="tag-item" wx:for="{{item.tags}}" wx:key="index" wx:for-item="tag">{{tag}}</text>
+      </view>
+      <view class="order-footer">
+        <view class="order-info">
+          <view class="info-row">
+            <text class="order-amount">¥{{item.amount}}</text>
+            <text class="order-distance" wx:if="{{item.distance}}">{{item.distance}}km</text>
+          </view>
+          <text class="order-time">{{item.createTime}}</text>
+        </view>
+        <view class="order-actions">
+          <button class="accept-btn"
+                  wx:if="{{item.status === 1}}"
+                  bindtap="onAcceptOrder"
+                  data-id="{{item.id}}"
+                  size="mini">立即接单</button>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-tip" wx:if="{{orders.length === 0 && !loading}}">
+      <text class="empty-icon">📦</text>
+      <text class="empty-text">暂无可接订单</text>
+      <text class="empty-desc">请稍后再来查看</text>
+    </view>
+
+    <view class="loading-tip" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+  </view>
+</view>

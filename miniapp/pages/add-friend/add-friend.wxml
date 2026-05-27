@@ -1,0 +1,161 @@
+<wxs module="utils">
+function getFirstChar(str) {
+  if (!str || str.length === 0) return 'U';
+  return str.substring(0, 1);
+}
+module.exports = { getFirstChar: getFirstChar };
+</wxs>
+
+<nav-bar title="添加好友" />
+<view class="container">
+  <view class="search-section">
+    <view class="search-box">
+      <text class="search-icon">🔍</text>
+      <input class="search-input"
+             placeholder="输入用户ID或昵称搜索"
+             value="{{searchKeyword}}"
+             bindinput="onSearchInput"
+             bindconfirm="onSearch" />
+      <view class="search-btn {{searchKeyword ? 'active' : ''}}" bindtap="onSearch">
+        <text class="btn-text">搜索</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="add-methods">
+    <view class="method-card" bindtap="onScanQRCode">
+      <view class="method-icon-wrapper scan">
+        <text class="method-icon">📷</text>
+      </view>
+      <view class="method-info">
+        <text class="method-title">扫一扫二维码</text>
+        <text class="method-desc">扫描好友的二维码名片</text>
+      </view>
+      <text class="method-arrow">›</text>
+    </view>
+    <view class="method-card" bindtap="onImportContacts">
+      <view class="method-icon-wrapper contacts">
+        <text class="method-icon">📱</text>
+      </view>
+      <view class="method-info">
+        <text class="method-title">导入手机联系人</text>
+        <text class="method-desc">匹配通讯录中的好友</text>
+      </view>
+      <text class="method-arrow">›</text>
+    </view>
+    <view class="method-card" bindtap="onShareInvite">
+      <view class="method-icon-wrapper share">
+        <text class="method-icon">🔗</text>
+      </view>
+      <view class="method-info">
+        <text class="method-title">分享邀请链接</text>
+        <text class="method-desc">通过链接邀请好友加入</text>
+      </view>
+      <text class="method-arrow">›</text>
+    </view>
+  </view>
+
+  <view class="search-results" wx:if="{{searchResults.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">搜索结果</text>
+      <text class="result-count">共 {{searchResults.length}} 个结果</text>
+    </view>
+    <view class="user-list">
+      <view class="user-card" wx:for="{{searchResults}}" wx:key="id">
+        <view class="user-avatar" style="background: {{item.avatarColor}}">
+          <text class="avatar-text">{{utils.getFirstChar(item.nickname)}}</text>
+        </view>
+        <view class="user-info">
+          <text class="user-name">{{item.nickname}}</text>
+          <text class="user-id">ID: {{item.id}}</text>
+        </view>
+        <view class="user-action">
+          <button class="add-btn"
+                  wx:if="{{!item.isFriend}}"
+                  bindtap="onAddFriend"
+                  data-id="{{item.id}}"
+                  data-name="{{item.nickname}}">添加</button>
+          <view class="friend-badge" wx:else>
+            <text class="badge-text">已添加</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="pending-requests" wx:if="{{pendingCount > 0}}">
+    <view class="section-header">
+      <view class="section-title-wrapper">
+        <text class="section-title">待验证申请</text>
+        <view class="badge">
+          <text class="badge-text">{{pendingCount}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="request-list">
+      <view class="request-card" wx:for="{{pendingRequests}}" wx:key="id">
+        <view class="user-avatar" style="background: {{item.avatarColor}}">
+          <text class="avatar-text">{{utils.getFirstChar(item.nickname)}}</text>
+        </view>
+        <view class="request-info">
+          <text class="user-name">{{item.nickname}}</text>
+          <text class="apply-message">{{item.applyMessage || '请求添加你为好友'}}</text>
+        </view>
+        <view class="request-actions">
+          <button class="action-btn accept" bindtap="onAcceptRequest" data-id="{{item.userId}}">接受</button>
+          <button class="action-btn reject" bindtap="onRejectRequest" data-id="{{item.userId}}">拒绝</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="my-friends">
+    <view class="section-header">
+      <text class="section-title">我的好友</text>
+      <text class="friend-count" wx:if="{{friends.length > 0}}">共 {{friends.length}} 位好友</text>
+    </view>
+    <view class="friend-list" wx:if="{{friends.length > 0}}">
+      <view class="friend-card" wx:for="{{friends}}" wx:key="id">
+        <view class="user-avatar" style="background: {{item.avatarColor}}">
+          <text class="avatar-text">{{utils.getFirstChar(item.remark || item.nickname)}}</text>
+        </view>
+        <view class="friend-info">
+          <text class="user-name">{{item.remark || item.nickname}}</text>
+          <text class="user-id" wx:if="{{item.remark}}">{{item.nickname}}</text>
+        </view>
+        <view class="friend-actions">
+          <button class="action-btn chat" bindtap="onChat" data-id="{{item.friendId}}">发消息</button>
+        </view>
+      </view>
+    </view>
+    <view class="empty-container" wx:else>
+      <text class="empty-icon">👥</text>
+      <text class="empty-text">还没有好友</text>
+      <text class="empty-desc">快去添加好友开始聊天吧</text>
+    </view>
+  </view>
+</view>
+
+<view class="modal-mask" wx:if="{{showAddModal}}" bindtap="onCloseModal">
+  <view class="modal-content" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">添加好友</text>
+      <text class="modal-close" bindtap="onCloseModal">✕</text>
+    </view>
+    <view class="modal-body">
+      <view class="form-item">
+        <text class="form-label">验证信息</text>
+        <textarea class="form-textarea"
+                  placeholder="请输入验证信息，让对方知道你是谁"
+                  value="{{applyMessage}}"
+                  bindinput="onMessageInput"
+                  maxlength="50" />
+        <text class="char-count">{{applyMessage.length}}/50</text>
+      </view>
+    </view>
+    <view class="modal-footer">
+      <button class="modal-btn cancel" bindtap="onCloseModal">取消</button>
+      <button class="modal-btn confirm" bindtap="onConfirmAdd">发送申请</button>
+    </view>
+  </view>
+</view>

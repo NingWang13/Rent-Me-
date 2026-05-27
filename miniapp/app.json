@@ -1,0 +1,69 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/user/user",
+    "pages/wish/wish",
+    "pages/wish/detail/detail",
+    "pages/order/order",
+    "pages/order/detail/detail",
+    "pages/message/message",
+    "pages/service/service",
+    "pages/message/list/list",
+    "pages/search/index/index",
+    "pages/profile/feedback/feedback",
+    "pages/profile/accessibility/accessibility",
+    "pages/auth/payment-password/payment-password",
+    "pages/auth/verify/verify",
+    "pages/accept/accept",
+    "pages/add-friend/add-friend",
+    "pages/create-group/create-group",
+    "pages/my-groups/my-groups",
+    "pages/chat/chat",
+    "pages/group-chat/group-chat",
+    "pages/group-members/group-members",
+    "pages/auth/login/login",
+    "pages/activity/list/list",
+    "pages/settings/notification/notification"
+  ],
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/nav-bar",
+    "empty-state": "/components/empty-state/empty-state"
+  },
+  "window": {
+    "navigationStyle": "custom",
+    "navigationBarTitleText": "三代互助社区",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#1890ff",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/wish/wish",
+        "text": "心愿墙"
+      },
+      {
+        "pagePath": "pages/order/order",
+        "text": "订单"
+      },
+      {
+        "pagePath": "pages/message/message",
+        "text": "消息"
+      },
+      {
+        "pagePath": "pages/user/user",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

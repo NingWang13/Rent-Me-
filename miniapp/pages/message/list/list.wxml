@@ -1,0 +1,53 @@
+<nav-bar title="消息列表" showBack="{{true}}" />
+<view class="container">
+  <view class="header">
+    <view class="tabs">
+      <view wx:for="{{tabs}}" wx:key="index"
+            class="tab {{activeTab === index ? 'active' : ''}}"
+            bindtap="switchTab"
+            data-index="{{index}}">
+        <text>{{item.name}}</text>
+      </view>
+    </view>
+    <view class="mark-read" bindtap="markAllAsRead">
+      <text>全部已读</text>
+    </view>
+  </view>
+
+  <view class="message-list">
+    <view wx:if="{{messages.length === 0 && !loading}}" class="empty">
+      <text>暂无消息</text>
+    </view>
+
+    <view wx:for="{{messages}}" wx:key="id"
+          class="message-item {{item.isRead === 0 ? 'unread' : ''}}"
+          bindtap="onMessageTap"
+          data-id="{{item.id}}"
+          data-type="{{item.type}}"
+          data-related="{{item.relatedId}}">
+      <view class="message-icon">
+        <view class="icon-box type-{{item.type}}">
+          <text wx:if="{{item.type === 2}}">订单</text>
+          <text wx:elif="{{item.type === 3}}">支付</text>
+          <text wx:elif="{{item.type === 4}}">积分</text>
+          <text wx:elif="{{item.type === 5}}">心愿</text>
+          <text wx:else>通知</text>
+        </view>
+      </view>
+      <view class="message-content">
+        <view class="message-title">{{item.title}}</view>
+        <view class="message-text">{{item.content}}</view>
+        <view class="message-time">{{item.createTime}}</view>
+      </view>
+      <view wx:if="{{item.isRead === 0}}" class="unread-dot"></view>
+    </view>
+
+    <view wx:if="{{loading}}" class="loading">
+      <text>加载中...</text>
+    </view>
+
+    <view wx:if="{{!hasMore && messages.length > 0}}" class="no-more">
+      <text>没有更多了</text>
+    </view>
+  </view>
+</view>

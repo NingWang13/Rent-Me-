@@ -1,0 +1,134 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mutual-help-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: mutual_help
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./scripts/init_database_simple.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - mutual-help-network
+
+  redis:
+    image: redis:7.2
+    container_name: mutual-help-redis
+    restart: always
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - mutual-help-network
+
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    container_name: mutual-help-user
+    restart: always
+    depends_on:
+      - mysql
+      - redis
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mutual_help?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root_password
+      SPRING_DATA_REDIS_HOST: redis
+    networks:
+      - mutual-help-network
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    container_name: mutual-help-payment
+    restart: always
+    depends_on:
+      - mysql
+      - redis
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mutual_help?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root_password
+      SPRING_DATA_REDIS_HOST: redis
+    networks:
+      - mutual-help-network
+
+  order-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    container_name: mutual-help-order
+    restart: always
+    depends_on:
+      - mysql
+      - redis
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mutual_help?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root_password
+      SPRING_DATA_REDIS_HOST: redis
+    networks:
+      - mutual-help-network
+
+  message-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    container_name: mutual-help-message
+    restart: always
+    depends_on:
+      - mysql
+      - redis
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mutual_help?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root_password
+      SPRING_DATA_REDIS_HOST: redis
+    networks:
+      - mutual-help-network
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    container_name: mutual-help-gateway
+    restart: always
+    depends_on:
+      - user-service
+      - payment-service
+      - order-service
+      - message-service
+    ports:
+      - "8080:8080"
+    networks:
+      - mutual-help-network
+
+volumes:
+  mysql-data:
+  redis-data:
+
+networks:
+  mutual-help-network:
+    driver: bridge

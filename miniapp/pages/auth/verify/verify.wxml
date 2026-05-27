@@ -1,0 +1,58 @@
+<nav-bar title="身份认证" showBack="{{true}}" />
+<view class="container">
+  <view class="step-indicator">
+    <view class="step {{step >= 1 ? 'active' : ''}}">
+      <view class="step-num">1</view>
+      <text class="step-text">手机验证</text>
+    </view>
+    <view class="step-line {{step >= 2 ? 'active' : ''}}"></view>
+    <view class="step {{step >= 2 ? 'active' : ''}}">
+      <view class="step-num">2</view>
+      <text class="step-text">身份证认证</text>
+    </view>
+    <view class="step-line {{step >= 3 ? 'active' : ''}}"></view>
+    <view class="step {{step >= 3 ? 'active' : ''}}">
+      <view class="step-num">3</view>
+      <text class="step-text">人脸认证</text>
+    </view>
+  </view>
+
+  <view class="content">
+    <view class="step-content" wx:if="{{step === 1}}">
+      <view class="title">手机号验证</view>
+      <view class="desc">请输入发送给 {{phone}} 的验证码</view>
+      <view class="input-group">
+        <input class="code-input" type="number" maxlength="6"
+               placeholder="请输入6位验证码"
+               value="{{verificationCode}}"
+               bindinput="onInputCode" />
+        <button class="send-btn" bindtap="sendVerificationCode"
+                disabled="{{countdown > 0}}">
+          {{countdown > 0 ? countdown + 's' : '发送验证码'}}
+        </button>
+      </view>
+      <button class="next-btn" bindtap="verifyCode"
+              disabled="{{verificationCode.length !== 6 || loading}}">
+        验证
+      </button>
+    </view>
+
+    <view class="step-content" wx:if="{{step === 2}}">
+      <view class="title">身份证认证</view>
+      <view class="desc">请上传您的身份证照片进行认证</view>
+      <view class="id-card-upload" bindtap="verifyIdCard">
+        <view class="upload-icon">+</view>
+        <text class="upload-text">点击上传身份证照片</text>
+      </view>
+      <button class="next-btn" bindtap="nextStep">跳过</button>
+    </view>
+
+    <view class="step-content" wx:if="{{step === 3}}">
+      <view class="title">人脸认证</view>
+      <view class="desc">请进行人脸识别以完成认证</view>
+      <view class="face-icon">人脸</view>
+      <button class="next-btn" bindtap="verifyFace">开始认证</button>
+      <button class="skip-btn" bindtap="finishAuth">跳过</button>
+    </view>
+  </view>
+</view>

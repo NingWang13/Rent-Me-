@@ -1,0 +1,65 @@
+<nav-bar title="搜索" showBack="{{true}}" />
+<view class="container">
+  <view class="search-bar">
+    <input class="search-input" type="text" placeholder="搜索订单/心愿"
+           value="{{keyword}}"
+           bindinput="onInput"
+           bindconfirm="onSearch" />
+    <button class="search-btn" bindtap="onSearch">搜索</button>
+    <button wx:if="{{keyword}}" class="clear-btn" bindtap="clearKeyword">清除</button>
+  </view>
+
+  <view class="hot-tags" wx:if="{{hotTags && hotTags.length > 0}}">
+    <text class="tags-title">热门标签:</text>
+    <view class="tags-list">
+      <view wx:for="{{hotTags}}" wx:key="index"
+            class="tag-item"
+            bindtap="onTagTap"
+            data-tag="{{item.name}}">
+        <text>{{item.name}}</text>
+        <text class="tag-count">{{item.count}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="category-filter">
+    <scroll-view scroll-x class="category-scroll">
+      <view wx:for="{{categories}}" wx:key="id"
+            class="category-item {{activeCategory === item.id ? 'active' : ''}}"
+            bindtap="selectCategory"
+            data-id="{{item.id}}">
+        <text>{{item.name}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="result-list">
+    <view wx:if="{{orders.length === 0 && !loading}}" class="empty">
+      <text>未找到相关订单</text>
+    </view>
+
+    <view wx:for="{{orders}}" wx:key="id" class="order-card">
+      <view class="order-header">
+        <text class="order-title">{{item.title}}</text>
+        <text class="order-status status-{{item.status}}">
+          {{item.statusText}}
+        </text>
+      </view>
+      <view class="order-content">
+        <text>{{item.content}}</text>
+      </view>
+      <view class="order-footer">
+        <text class="order-reward">奖励积分: {{item.rewardCredit}}</text>
+        <text class="order-time">{{item.createTime}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{loading}}" class="loading">
+      <text>加载中...</text>
+    </view>
+
+    <view wx:if="{{!hasMore && orders.length > 0}}" class="no-more">
+      <text>没有更多了</text>
+    </view>
+  </view>
+</view>

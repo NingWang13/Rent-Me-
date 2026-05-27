@@ -1,0 +1,61 @@
+<view class="publish-container">
+  <view class="publish-header">
+    <text class="page-title">发布心愿</text>
+    <text class="page-desc">分享您的心愿，让社区更温暖</text>
+  </view>
+
+  <view class="publish-form">
+    <view class="form-item">
+      <text class="label">心愿标题</text>
+      <input class="input" placeholder="请输入心愿标题" value="{{title}}" bindinput="onTitleInput" maxlength="50" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">心愿内容</text>
+      <textarea class="textarea" placeholder="请详细描述您的心愿..." value="{{content}}" bindinput="onContentInput" maxlength="500" auto-height />
+    </view>
+
+    <view class="form-item">
+      <text class="label">心愿分类</text>
+      <view class="category-list">
+        <view 
+          class="category-item {{category === 1 ? 'active' : ''}}" 
+          bindtap="onSelectCategory" 
+          data-type="1">
+          <text>学习类</text>
+        </view>
+        <view 
+          class="category-item {{category === 2 ? 'active' : ''}}" 
+          bindtap="onSelectCategory" 
+          data-type="2">
+          <text>陪伴类</text>
+        </view>
+        <view 
+          class="category-item {{category === 3 ? 'active' : ''}}" 
+          bindtap="onSelectCategory" 
+          data-type="3">
+          <text>协助类</text>
+        </view>
+        <view 
+          class="category-item {{category === 4 ? 'active' : ''}}" 
+          bindtap="onSelectCategory" 
+          data-type="4">
+          <text>圆梦类</text>
+        </view>
+        <view 
+          class="category-item {{category === 5 ? 'active' : ''}}" 
+          bindtap="onSelectCategory" 
+          data-type="5">
+          <text>技能类</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="label">奖励积分</text>
+      <input class="input" type="number" placeholder="请输入奖励积分" value="{{rewardCredit}}" bindinput="onRewardInput" />
+    </view>
+
+    <button class="submit-btn" bindtap="onSubmit">发布心愿</button>
+  </view>
+</view>

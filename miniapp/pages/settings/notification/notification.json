@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "消息通知设置",
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/nav-bar"
+  }
+}

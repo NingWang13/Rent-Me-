@@ -1,0 +1,64 @@
+<nav-bar title="帮助与反馈" showBack="{{true}}" />
+<view class="container">
+  <view class="type-section">
+    <view class="section-title">反馈类型</view>
+    <view class="type-grid">
+      <view wx:for="{{types}}" wx:key="id"
+            class="type-item {{selectedType === item.id ? 'selected' : ''}}"
+            bindtap="selectType"
+            data-id="{{item.id}}">
+        <text class="type-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="content-section">
+    <view class="section-title">反馈内容</view>
+    <textarea class="content-input"
+              placeholder="请详细描述您的问题或建议（至少10个字）"
+              value="{{content}}"
+              bindinput="onContentInput"
+              maxlength="500" />
+    <view class="word-count">{{content.length}}/500</view>
+  </view>
+
+  <view class="image-section">
+    <view class="section-title">上传图片（可选）</view>
+    <view class="image-list">
+      <view wx:for="{{images}}" wx:key="index" class="image-item">
+        <image src="{{item}}" mode="aspectFill" />
+        <view class="remove-btn" bindtap="removeImage" data-index="{{index}}">×</view>
+      </view>
+      <view wx:if="{{images.length < 3}}" class="add-image" bindtap="chooseImage">
+        <text>+</text>
+        <text class="add-text">添加图片</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="rating-section">
+    <view class="section-title">满意度评分</view>
+    <view class="rating-row">
+      <view wx:for="{{5}}" wx:key="index" class="star-item">
+        <text class="star {{index < rating ? 'active' : ''}}"
+              bindtap="setRating"
+              data-rating="{{index + 1}}">★</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="contact-section">
+    <view class="section-title">联系方式（可选）</view>
+    <input class="contact-input"
+           type="text"
+           placeholder="手机号或微信号"
+           value="{{contact}}"
+           bindinput="onContactInput" />
+  </view>
+
+  <button class="submit-btn {{submitting ? 'disabled' : ''}}"
+          bindtap="submitFeedback"
+          disabled="{{submitting}}">
+    {{submitting ? '提交中...' : '提交反馈'}}
+  </button>
+</view>

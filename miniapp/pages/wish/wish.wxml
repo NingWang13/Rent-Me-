@@ -1,0 +1,186 @@
+<nav-bar title="心愿墙" />
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <text class="search-icon">🔍</text>
+      <input class="search-input" placeholder="搜索心愿..." value="{{searchKeyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+      <view class="search-clear" wx:if="{{searchKeyword}}" bindtap="clearSearch">×</view>
+    </view>
+  </view>
+
+  <!-- 分类标签 -->
+  <view class="category-tabs">
+    <scroll-view scroll-x class="tab-scroll">
+      <view class="tab-list">
+        <view class="tab-item {{item.selected ? 'active' : ''}}"
+              wx:for="{{categories}}"
+              wx:key="id"
+              bindtap="onSelectCategory"
+              data-id="{{item.id}}">
+          <text class="tab-text">{{item.name}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 发布心愿卡片 -->
+  <view class="publish-card" wx:if="{{!showPublishForm}}">
+    <view class="publish-card-inner" bindtap="togglePublishForm">
+      <view class="publish-icon">✨</view>
+      <view class="publish-info">
+        <text class="publish-title">发布你的心愿</text>
+        <text class="publish-desc">发布心愿可获得10积分奖励</text>
+      </view>
+      <view class="publish-arrow">→</view>
+    </view>
+  </view>
+
+  <!-- 发布心愿表单 -->
+  <view class="publish-form" wx:if="{{showPublishForm}}">
+    <view class="form-header">
+      <text class="form-title">发布心愿</text>
+      <view class="form-close" bindtap="togglePublishForm">
+        <text class="close-icon">×</text>
+      </view>
+    </view>
+
+    <scroll-view scroll-y class="form-scroll">
+      <view class="form-card">
+        <view class="form-item">
+          <view class="form-label-row">
+            <text class="form-label">心愿标题</text>
+            <text class="char-count">{{publishForm.title.length}}/50</text>
+          </view>
+          <input class="form-input"
+                 placeholder="用一句话描述你的心愿"
+                 value="{{publishForm.title}}"
+                 bindinput="onTitleInput"
+                 maxlength="50" />
+        </view>
+
+        <view class="form-item">
+          <view class="form-label-row">
+            <text class="form-label">心愿内容</text>
+            <text class="char-count">{{publishForm.content.length}}/500</text>
+          </view>
+          <textarea class="form-textarea"
+                    placeholder="详细描述你的心愿，让更多人愿意帮助你"
+                    value="{{publishForm.content}}"
+                    bindinput="onContentInput"
+                    maxlength="500" />
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">心愿类型</text>
+          <view class="type-grid">
+            <view class="type-item {{publishForm.category === 1 ? 'active' : ''}}" bindtap="onSelectPublishCategory" data-type="1">
+              <text class="type-icon">📚</text>
+              <text class="type-text">学习类</text>
+            </view>
+            <view class="type-item {{publishForm.category === 2 ? 'active' : ''}}" bindtap="onSelectPublishCategory" data-type="2">
+              <text class="type-icon">🤝</text>
+              <text class="type-text">陪伴类</text>
+            </view>
+            <view class="type-item {{publishForm.category === 3 ? 'active' : ''}}" bindtap="onSelectPublishCategory" data-type="3">
+              <text class="type-icon">🛠️</text>
+              <text class="type-text">协助类</text>
+            </view>
+            <view class="type-item {{publishForm.category === 4 ? 'active' : ''}}" bindtap="onSelectPublishCategory" data-type="4">
+              <text class="type-icon">✨</text>
+              <text class="type-text">圆梦类</text>
+            </view>
+            <view class="type-item {{publishForm.category === 5 ? 'active' : ''}}" bindtap="onSelectPublishCategory" data-type="5">
+              <text class="type-icon">💡</text>
+              <text class="type-text">技能类</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="form-item">
+          <view class="form-label-row">
+            <text class="form-label">奖励积分</text>
+            <text class="form-hint">发布即可获得10积分奖励</text>
+          </view>
+          <view class="reward-display-box">
+            <text class="reward-display-value">10</text>
+            <text class="reward-unit">积分</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="submit-section">
+      <button class="submit-btn" bindtap="onSubmitPublish">
+        <text class="btn-text">发布心愿</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 心愿列表 -->
+  <view class="wish-list">
+    <view class="wish-item" wx:for="{{wishes}}" wx:key="id" bindtap="viewWishDetail" data-id="{{item.id}}">
+      <view class="wish-header">
+        <view class="wish-user">
+          <image class="wish-avatar" src="{{item.userAvatar || '/images/default-avatar.png'}}" />
+          <text class="wish-user-name">{{item.userName}}</text>
+        </view>
+        <view class="wish-status {{item.status === 1 ? 'pending' : item.status === 2 ? 'ongoing' : 'completed'}}">
+          <text class="status-text">{{item.status === 1 ? '待认领' : item.status === 2 ? '进行中' : '已完成'}}</text>
+        </view>
+      </view>
+      <view class="wish-content">
+        <text class="wish-title">{{item.title}}</text>
+        <text class="wish-desc">{{item.content}}</text>
+      </view>
+      <view class="wish-tags" wx:if="{{item.tags}}">
+        <text class="wish-tag" wx:for="{{item.tags}}" wx:key="index" wx:for-item="tag">{{tag}}</text>
+      </view>
+      <view class="wish-footer">
+        <view class="wish-reward">
+          <text class="reward-icon">积分</text>
+          <text class="reward-value">{{item.rewardCredit}}</text>
+          <text class="reward-distance" wx:if="{{item.distance}}">{{item.distance}}km</text>
+        </view>
+        <button class="claim-btn"
+                wx:if="{{item.status === 1 && item.userId !== currentUserId}}"
+                catchtap="onClaimWish"
+                data-id="{{item.id}}"
+                size="mini">认领</button>
+      </view>
+    </view>
+
+    <empty-state
+      wx:if="{{wishes.length === 0 && !loading && !showPublishForm}}"
+      iconText="✨"
+      title="暂无心愿"
+      desc="还没有人发布心愿，快来做第一个吧"
+      actions="{{emptyActions}}"
+      bind:action="onEmptyAction"
+    />
+
+    <view class="loading-tip" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+
+    <view class="no-more" wx:if="{{noMore && wishes.length > 0}}">
+      <text>没有更多了</text>
+    </view>
+  </view>
+
+  <!-- 积分奖励弹窗 -->
+  <view class="credit-modal" wx:if="{{showCreditModal}}" catchtouchmove="preventMove">
+    <view class="modal-mask" bindtap="closeCreditModal"></view>
+    <view class="modal-content">
+      <view class="modal-icon">🎉</view>
+      <text class="modal-title">发布成功</text>
+      <view class="credit-reward">
+        <text class="credit-label">获得积分奖励</text>
+        <text class="credit-value">+{{creditReward}}积分</text>
+      </view>
+      <button class="modal-btn" bindtap="closeCreditModal">
+        <text class="modal-btn-text">知道了</text>
+      </button>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,25 @@
+{
+  "properties": [
+    {
+      "name": "app.jwt.secret",
+      "type": "java.lang.String",
+      "description": "JWT signing secret key. Must be at least 256 bits (32 characters) long. Must be set via environment variable JWT_SECRET."
+    },
+    {
+      "name": "app.jwt.expiration",
+      "type": "java.lang.Long",
+      "description": "JWT token expiration time in milliseconds. Default is 86400000 (24 hours).",
+      "defaultValue": 86400000
+    },
+    {
+      "name": "wechat.app-id",
+      "type": "java.lang.String",
+      "description": "WeChat Mini Program App ID. Must be set via environment variable WECHAT_APP_ID."
+    },
+    {
+      "name": "wechat.app-secret",
+      "type": "java.lang.String",
+      "description": "WeChat Mini Program App Secret. Must be set via environment variable WECHAT_APP_SECRET."
+    }
+  ]
+}

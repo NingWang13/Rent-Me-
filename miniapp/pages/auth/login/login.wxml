@@ -1,0 +1,26 @@
+<view class="login-container">
+  <view class="login-header">
+    <image class="logo" src="/images/logo.png" mode="aspectFit"></image>
+    <text class="title">三代互助社区</text>
+    <text class="subtitle">让社区更温暖</text>
+  </view>
+
+  <view class="login-form">
+    <view class="form-item">
+      <text class="label">用户名</text>
+      <input class="input" placeholder="请输入用户名" value="{{username}}" bindinput="onUsernameInput" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">密码</text>
+      <input class="input" placeholder="请输入密码" password="{{true}}" value="{{password}}" bindinput="onPasswordInput" />
+    </view>
+
+    <button class="login-btn" bindtap="handleLogin">登录</button>
+    <button class="register-btn" bindtap="goToRegister">注册</button>
+  </view>
+
+  <view class="login-footer">
+    <text class="footer-text">登录即表示同意《用户协议》和《隐私政策》</text>
+  </view>
+</view>

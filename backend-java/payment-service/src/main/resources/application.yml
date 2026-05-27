@@ -1,0 +1,65 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: payment-service
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:community_platform}?useUnicode=true&characterEncoding=utf8&useSSL=${DB_USE_SSL:false}&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=${DB_ALLOW_PUBLIC_KEY_RETRIEVAL:false}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: ${DB_MIN_IDLE:5}
+      maximum-pool-size: ${DB_MAX_POOL_SIZE:20}
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DB:0}
+      timeout: 3000
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    "[com.community]": ${LOG_LEVEL_APP:INFO}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: ${ACTUATOR_HEALTH_SHOW_DETAILS:when-authorized}
+
+wechat:
+  pay:
+    appid: ${WECHAT_PAY_APPID}
+    mchid: ${WECHAT_PAY_MCHID}
+    api-key: ${WECHAT_PAY_API_KEY}
+    notify-url: ${WECHAT_PAY_NOTIFY_URL}
+    cert-path: ${WECHAT_PAY_CERT_PATH:classpath:wechat/apiclient_cert.pem}
+    key-path: ${WECHAT_PAY_KEY_PATH:classpath:wechat/apiclient_key.pem}

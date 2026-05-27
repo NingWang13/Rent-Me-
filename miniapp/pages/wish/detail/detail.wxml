@@ -1,0 +1,60 @@
+<nav-bar title="心愿详情" showBack="{{true}}" />
+<view class="container">
+  <view class="loading-container" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <view class="detail-content" wx:elif="{{wish}}">
+    <view class="wish-hero">
+      <view class="wish-hero-header">
+        <view class="wish-status {{wish.status === 1 ? 'pending' : wish.status === 2 ? 'ongoing' : 'completed'}}">
+          <text class="status-text">{{wish.status === 1 ? '待认领' : wish.status === 2 ? '进行中' : '已完成'}}</text>
+        </view>
+        <view class="wish-category">
+          <text class="category-tag">{{wish.categoryName}}</text>
+        </view>
+      </view>
+      <text class="wish-title">{{wish.title}}</text>
+      <text class="wish-content">{{wish.content}}</text>
+    </view>
+
+    <view class="wish-meta-card">
+      <view class="wish-meta-grid">
+        <view class="meta-item">
+          <text class="meta-label">发布者</text>
+          <text class="meta-value">{{wish.userName}}</text>
+        </view>
+        <view class="meta-item">
+          <text class="meta-label">奖励积分</text>
+          <text class="meta-value reward">{{wish.rewardCredit}}</text>
+        </view>
+        <view class="meta-item">
+          <text class="meta-label">发布时间</text>
+          <text class="meta-value">{{wish.createTime}}</text>
+        </view>
+        <view class="meta-item" wx:if="{{wish.claimedByName}}">
+          <text class="meta-label">认领者</text>
+          <text class="meta-value">{{wish.claimedByName}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="action-section" wx:if="{{canClaim}}">
+      <button class="claim-btn" bindtap="onClaimWish">
+        <text class="btn-text">立即认领</text>
+      </button>
+    </view>
+
+    <view class="action-section" wx:elif="{{isOwner && wish.status === 1}}">
+      <button class="cancel-btn" bindtap="onCancelWish">
+        <text class="btn-text">取消心愿</text>
+      </button>
+    </view>
+  </view>
+
+  <view class="empty-container" wx:else>
+    <text class="empty-icon">📝</text>
+    <text class="empty-text">心愿不存在或已删除</text>
+    <button class="back-btn" bindtap="goBack">返回</button>
+  </view>
+</view>

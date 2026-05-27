@@ -1,0 +1,106 @@
+<nav-bar title="消息" />
+<view class="container">
+  <view class="quick-actions">
+    <view class="action-card" bindtap="goToAddFriend">
+      <view class="action-icon-box friend-icon">
+        <text class="action-emoji">👤</text>
+      </view>
+      <text class="action-label">添加好友</text>
+    </view>
+    <view class="action-card" bindtap="goToCreateGroup">
+      <view class="action-icon-box group-icon">
+        <text class="action-emoji">👥</text>
+      </view>
+      <text class="action-label">创建群聊</text>
+    </view>
+    <view class="action-card" bindtap="goToMyGroups">
+      <view class="action-icon-box mygroup-icon">
+        <text class="action-emoji">💬</text>
+      </view>
+      <text class="action-label">我的群聊</text>
+    </view>
+  </view>
+
+  <view class="loading-container" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <view class="not-login-container" wx:elif="{{!isLogin}}">
+    <text class="not-login-icon">💬</text>
+    <text class="not-login-text">请先登录</text>
+    <button class="login-btn" bindtap="goToLogin">立即登录</button>
+  </view>
+
+  <view wx:else>
+    <view class="tab-header">
+      <scroll-view scroll-x class="tab-list">
+        <view wx:for="{{tabs}}" wx:key="index"
+              class="tab-item {{activeTab === index ? 'active' : ''}}"
+              bindtap="switchTab"
+              data-index="{{index}}">
+          <text>{{item.name}}</text>
+          <view class="tab-badge" wx:if="{{item.unreadCount > 0}}">
+            <text>{{item.unreadCount > 99 ? '99+' : item.unreadCount}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="message-list">
+      <view class="message-card" wx:for="{{messages}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}" data-type="{{item.type}}">
+        <view class="message-icon">
+          <view class="icon-box type-{{item.type}}">
+            <text wx:if="{{item.type === 1}}">通</text>
+            <text wx:elif="{{item.type === 2}}">订</text>
+            <text wx:elif="{{item.type === 3}}">付</text>
+            <text wx:elif="{{item.type === 4}}">积</text>
+            <text wx:elif="{{item.type === 5}}">心</text>
+            <text wx:else>系</text>
+          </view>
+        </view>
+
+        <view class="message-content">
+          <view class="message-header">
+            <text class="message-title">{{item.title}}</text>
+            <text class="message-time">{{item.timeAgo}}</text>
+          </view>
+          <view class="message-text">{{item.content}}</view>
+          <view class="message-footer" wx:if="{{item.relatedId}}">
+            <text class="related-text">查看详情 ></text>
+          </view>
+        </view>
+
+        <view class="unread-dot" wx:if="{{item.isRead === 0}}"></view>
+      </view>
+
+      <empty-state 
+        wx:if="{{messages.length === 0 && !loading}}"
+        iconText="💬"
+        title="暂无消息"
+        desc="你还没有任何消息，快去看看吧"
+        actions="{{emptyActions}}"
+        bind:action="onEmptyAction"
+      />
+
+      <view class="no-more" wx:if="{{!hasMore && messages.length > 0}}">
+        <text>没有更多了</text>
+      </view>
+
+      <view class="loading-more" wx:if="{{loadingMore && messages.length > 0}}">
+        <text>加载中...</text>
+      </view>
+    </view>
+
+    <view class="bottom-actions">
+      <view class="action-item" bindtap="markAllAsRead">
+        <text class="action-icon">✓</text>
+        <text class="action-text">全部已读</text>
+      </view>
+      <view class="action-divider"></view>
+      <view class="action-item" bindtap="clearAllMessages">
+        <text class="action-icon">🗑</text>
+        <text class="action-text">清空消息</text>
+      </view>
+    </view>
+  </view>
+</view>

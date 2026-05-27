@@ -1,0 +1,152 @@
+<wxs module="utils">
+function getFirstChar(str) {
+  if (!str || str.length === 0) return 'U';
+  return str.substring(0, 1);
+}
+module.exports = { getFirstChar: getFirstChar };
+</wxs>
+
+<nav-bar title="创建群聊" />
+<view class="container">
+  <view class="form-section">
+    <view class="form-item">
+      <text class="form-label">群聊名称</text>
+      <view class="input-wrapper">
+        <text class="input-icon">📝</text>
+        <input class="form-input"
+               placeholder="请输入群聊名称"
+               value="{{groupName}}"
+               bindinput="onGroupNameInput"
+               maxlength="20" />
+      </view>
+      <text class="char-count {{groupName.length >= 20 ? 'warning' : ''}}">{{groupName.length}}/20</text>
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">群聊描述</text>
+      <view class="textarea-wrapper">
+        <textarea class="form-textarea"
+                  placeholder="请输入群聊描述，让成员了解群聊的主题和用途"
+                  value="{{description}}"
+                  bindinput="onDescriptionInput"
+                  maxlength="200" />
+      </view>
+      <text class="char-count {{description.length >= 200 ? 'warning' : ''}}">{{description.length}}/200</text>
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">群聊类型</text>
+      <view class="option-grid">
+        <view class="option-card {{chatType === 1 ? 'active' : ''}}" bindtap="onSelectChatType" data-type="1">
+          <view class="option-icon-wrapper">
+            <text class="option-icon">💬</text>
+          </view>
+          <text class="option-text">普通群</text>
+        </view>
+        <view class="option-card {{chatType === 2 ? 'active' : ''}}" bindtap="onSelectChatType" data-type="2">
+          <view class="option-icon-wrapper">
+            <text class="option-icon">💼</text>
+          </view>
+          <text class="option-text">工作群</text>
+        </view>
+        <view class="option-card {{chatType === 3 ? 'active' : ''}}" bindtap="onSelectChatType" data-type="3">
+          <view class="option-icon-wrapper">
+            <text class="option-icon">🎯</text>
+          </view>
+          <text class="option-text">兴趣群</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">加入方式</text>
+      <view class="option-list">
+        <view class="option-row {{joinType === 1 ? 'active' : ''}}" bindtap="onSelectJoinType" data-type="1">
+          <view class="option-row-left">
+            <view class="option-row-icon-wrapper open">
+              <text class="option-row-icon">🔓</text>
+            </view>
+            <view class="option-row-info">
+              <text class="option-row-title">自由加入</text>
+              <text class="option-row-desc">任何人无需验证即可加入</text>
+            </view>
+          </view>
+          <view class="radio-icon {{joinType === 1 ? 'checked' : ''}}">
+            <view class="radio-dot" wx:if="{{joinType === 1}}"></view>
+          </view>
+        </view>
+        <view class="option-row {{joinType === 2 ? 'active' : ''}}" bindtap="onSelectJoinType" data-type="2">
+          <view class="option-row-left">
+            <view class="option-row-icon-wrapper verify">
+              <text class="option-row-icon">🔒</text>
+            </view>
+            <view class="option-row-info">
+              <text class="option-row-title">需要验证</text>
+              <text class="option-row-desc">需要群主或管理员审核通过</text>
+            </view>
+          </view>
+          <view class="radio-icon {{joinType === 2 ? 'checked' : ''}}">
+            <view class="radio-dot" wx:if="{{joinType === 2}}"></view>
+          </view>
+        </view>
+        <view class="option-row {{joinType === 3 ? 'active' : ''}}" bindtap="onSelectJoinType" data-type="3">
+          <view class="option-row-left">
+            <view class="option-row-icon-wrapper closed">
+              <text class="option-row-icon">🚫</text>
+            </view>
+            <view class="option-row-info">
+              <text class="option-row-title">禁止加入</text>
+              <text class="option-row-desc">仅邀请成员，不接受新成员申请</text>
+            </view>
+          </view>
+          <view class="radio-icon {{joinType === 3 ? 'checked' : ''}}">
+            <view class="radio-dot" wx:if="{{joinType === 3}}"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="member-section">
+    <view class="section-header">
+      <view class="section-title-wrapper">
+        <text class="section-title">邀请成员</text>
+        <view class="member-badge" wx:if="{{selectedMembers.length > 0}}">
+          <text class="badge-text">{{selectedMembers.length}}</text>
+        </view>
+      </view>
+      <text class="select-all" bindtap="onSelectAll" wx:if="{{friends.length > 0}}">
+        {{allSelected ? '取消全选' : '全选'}}
+      </text>
+    </view>
+
+    <view class="friend-list">
+      <view class="friend-card {{item.selected ? 'selected' : ''}}" wx:for="{{friends}}" wx:key="id">
+        <view class="checkbox {{item.selected ? 'checked' : ''}}" bindtap="onSelectMember" data-id="{{item.friendId}}">
+          <text class="check-icon" wx:if="{{item.selected}}">✓</text>
+        </view>
+        <view class="user-avatar" style="background: {{item.avatarColor}}">
+          <text class="avatar-text">{{utils.getFirstChar(item.remark || item.nickname)}}</text>
+        </view>
+        <view class="friend-info">
+          <text class="user-name">{{item.remark || item.nickname}}</text>
+          <text class="user-id" wx:if="{{item.remark}}">{{item.nickname}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-container" wx:if="{{friends.length === 0}}">
+      <text class="empty-icon">👥</text>
+      <text class="empty-text">还没有好友</text>
+      <text class="empty-desc">先去添加好友再创建群聊吧</text>
+    </view>
+  </view>
+
+  <view class="submit-section">
+    <button class="submit-btn {{groupName ? 'active' : 'disabled'}}" 
+            bindtap="onCreateGroup" 
+            disabled="{{!groupName}}">
+      <text class="btn-text">创建群聊</text>
+    </button>
+  </view>
+</view>

@@ -1,0 +1,28 @@
+{
+  "name": "mutual-help-miniapp",
+  "version": "1.0.0",
+  "description": "Three Generation Mutual Help Community Mini Program",
+  "main": "lib/app.js",
+  "scripts": {
+    "dev": "minidev dev",
+    "build": "minidev build",
+    "test": "minidev test",
+    "lint": "eslint lib/",
+    "fix": "eslint lib/ --fix"
+  },
+  "keywords": [
+    "wechat",
+    "miniapp",
+    "community",
+    "mutual-help"
+  ],
+  "author": "Community Team",
+  "license": "MIT",
+  "dependencies": {
+    "regenerator-runtime": "^0.14.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "miniprogram-api-typings": "^3.12.2"
+  }
+}

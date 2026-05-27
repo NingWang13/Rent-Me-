@@ -1,0 +1,27 @@
+<nav-bar title="群成员" showBack="{{true}}" />
+<view class="container">
+  <view class="header">
+    <view class="group-info">
+      <text class="group-name">{{groupName}}</text>
+      <text class="member-count">共{{members.length}}人</text>
+    </view>
+    <view class="action-btn" wx:if="{{isOwner || isAdmin}}" bindtap="onInviteMember">
+      <text class="btn-text">邀请成员</text>
+    </view>
+  </view>
+
+  <view class="member-list">
+    <view wx:for="{{members}}" wx:key="id" class="member-item">
+      <view class="member-avatar" style="background: {{item.avatarColor}}"></view>
+      <view class="member-info">
+        <text class="member-name">{{item.nickname}}</text>
+        <text class="member-role role-{{item.role}}">
+          {{item.role === 1 ? '群主' : item.role === 2 ? '管理员' : '成员'}}
+        </text>
+      </view>
+      <view class="member-action" wx:if="{{item.id !== currentUserId && (isOwner || isAdmin)}}">
+        <button class="remove-btn" bindtap="onRemoveMember" data-id="{{item.id}}" size="mini">移除</button>
+      </view>
+    </view>
+  </view>
+</view>

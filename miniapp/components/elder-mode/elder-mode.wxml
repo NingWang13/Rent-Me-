@@ -1,0 +1,5 @@
+<view class="elder-container">
+  <view class="elder-toggle" bindtap="switchElderMode">
+    <text class="toggle-text">{{isElderMode ? '切换标准模式' : '切换适老模式'}}</text>
+  </view>
+</view>
